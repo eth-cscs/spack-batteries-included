@@ -52,5 +52,9 @@ RUN --mount=type=bind,source=hack-wrapper.patch,target=/root/hack-wrapper.patch 
     cd /opt/spack && \
     git apply /root/hack-wrapper.patch
 
+RUN --mount=type=bind,source=curl.patch,target=/root/curl.patch \
+    cd /opt/spack && \
+    git apply /root/curl.patch
+
 # Install cmake as a system dependency for now
 RUN curl -Ls "https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local

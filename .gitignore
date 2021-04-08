@@ -12,3 +12,4 @@ output/spack.x
 output/spack.squashfs
 bootstrap-spack/spack/*
 bootstrap-spack/spack/.*
+spack-cc-*

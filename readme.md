@@ -110,7 +110,7 @@ The binary is so small and static anyways, so it's included in git.
 
 ### Using this image to build all spack dependencies for x86_64
 ```console
-$ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack --color=always -e . install --fail-fast -v
+$ docker run --rm -e SSL_CERT_DIR=/etc/ssl/certs/ -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack --color=always -e . install --fail-fast -v
 $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack -e . gc -y
 $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc bash -c 'find . -iname "*.a" | xargs rm'
 $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/env-tools:/env-tools -w /bootstrap-spack spack-old-glibc /env-tools/make_relative_env . view install

@@ -1,0 +1,10 @@
+diff --git a/var/spack/repos/builtin/packages/curl/package.py b/var/spack/repos/builtin/packages/curl/package.py
+index 040abd3d74..84e60e58ec 100644
+--- a/var/spack/repos/builtin/packages/curl/package.py
++++ b/var/spack/repos/builtin/packages/curl/package.py
+@@ -82,4 +82,5 @@ def configure_args(self):
+         args += self.with_or_without('nghttp2')
+         args += self.with_or_without('libssh2')
+         args += self.with_or_without('libssh')
++        args += ['--without-ca-bundle', '--without-ca-path']
+         return args

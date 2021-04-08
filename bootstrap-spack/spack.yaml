@@ -1,0 +1,38 @@
+spack:
+  specs:
+  - gmake
+  - git
+  - curl
+  - unzip
+  - tar
+  - gzip
+  - bzip2
+  - xz
+  - zstd
+  - python
+  - patch
+  - clingo-bootstrap@spack
+  - openssl ~systemcerts
+  concretization: together
+  packages:
+    all:
+      target:
+      - x86_64
+  view: ./view
+  config:
+    install_tree:
+      root: ./install
+  compilers:
+  - compiler:
+      flags: {}
+      environment: {}
+      modules: []
+      target: x86_64
+      spec: gcc@9.3.0
+      operating_system: ubuntu16.04
+      paths:
+        cxx: /usr/bin/g++-9
+        cc: /usr/bin/gcc-9
+        f77: /usr/bin/gfortran-9
+        fc: /usr/bin/gfortran-9
+      extra_rpaths: []

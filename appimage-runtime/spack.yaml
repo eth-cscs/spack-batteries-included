@@ -1,0 +1,60 @@
+spack:
+  specs:
+  - squashfuse@master~lz4~lzo+min_size~shared~xz~zlib
+  - zstd~shared build_type=MinSizeRel
+  - squashfs ~gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
+  concretization: together
+  view: ./view
+  config:
+    install_tree:
+      root: ./install
+  compilers:
+  - compiler:
+      environment: {}
+      target: x86_64
+      spec: gcc@9.3.0
+      extra_rpaths: []
+      paths:
+        cxx: /usr/bin/g++-9
+        f77: /usr/bin/gfortran-9
+        cc: /usr/bin/gcc-9
+        fc: /usr/bin/gfortran-9
+      flags: {}
+      operating_system: ubuntu16.04
+      modules: []
+  packages:
+    libtool:
+      externals:
+      - spec: libtool@2.4.6
+        prefix: /usr
+      buildable: false
+    pkg-config:
+      externals:
+      - spec: pkg-config@0.29.1
+        prefix: /usr
+      buildable: false
+    autoconf:
+      externals:
+      - spec: autoconf@2.69
+        prefix: /usr
+      buildable: false
+    m4:
+      externals:
+      - spec: m4@1.4.17
+        prefix: /usr
+      buildable: false
+    cmake:
+      externals:
+      - spec: cmake@3.20.0
+        prefix: /usr/local
+      buildable: false
+    libfuse:
+      externals:
+      - spec: libfuse@2.9.4
+        prefix: /
+      buildable: false
+    automake:
+      externals:
+      - spec: automake@1.15
+        prefix: /usr
+      buildable: false

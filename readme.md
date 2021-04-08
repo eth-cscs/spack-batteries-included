@@ -38,7 +38,7 @@ $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/env-tools:/en
 ## "Install spack"
 Just using the develop version here:
 ```console
-$ curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /bootstrap-spack/spack
+$ curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C bootstrap-spack/spack
 ```
 
 ## Build the minimal AppImage runtime (with spack of course)

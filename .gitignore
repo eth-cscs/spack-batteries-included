@@ -10,5 +10,5 @@ bootstrap-spack/spack.lock
 bootstrap-spack/view/
 output/spack.x
 output/spack.squashfs
-spack/*
-spack/.*
+bootstrap-spack/spack/*
+bootstrap-spack/spack/.*

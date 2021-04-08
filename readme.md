@@ -13,10 +13,12 @@ $ ./spack.x --version
   still required deps, but they should be installed on your system (hopefully).
 
 ## How does it work?
-`spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
+`spack.x` consists of a slightly hacked version* of the AppImage runtime concatenated
 with a big squashfs file which includes `bzip2`, `clingo`, `curl`, `git`,
 `gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
 their dependencies.
+
+\* it uses zstd and dynamically links against libfuse.
 
 When you run `./spack.x [args]` it will use fusermount (through libfuse) to mount
 this squahfs file in a temporary directory, and then execute the entrypoint

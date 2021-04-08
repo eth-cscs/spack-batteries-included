@@ -35,8 +35,13 @@ $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack s
 $ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/env-tools:/env-tools -w /bootstrap-spack spack-old-glibc /env-tools/make_relative_env . view install
 ```
 
-## Build the minimal AppImage runtime (with spack of course)
+## "Install spack"
+Just using the develop version here:
+```console
+$ curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /bootstrap-spack/spack
+```
 
+## Build the minimal AppImage runtime (with spack of course)
 ```console
 $ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
 $ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack -e . concretize -f
@@ -48,7 +53,7 @@ $ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtim
 
 ```console
 $ rm -f output/spack.squashfs output/spack.x
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/output:/output -w /output spack-old-glibc /appimage-runtime/view/bin/mksquashfs /boostrap-spack spack.squashfs
+$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/output:/output -w /output spack-old-glibc /appimage-runtime/view/bin/mksquashfs /bootstrap-spack spack.squashfs
 $ cat appimage-runtime/runtime output/spack.squashfs > output/spack.x
 $ chmod +x output/spack.x
 ```

@@ -4,7 +4,7 @@ spack:
   - zstd~shared build_type=MinSizeRel
   - squashfs ~gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
   concretization: together
-  view: ./view
+  view: /appimage-runtime/view
   config:
     install_tree:
       root: ./install
@@ -23,24 +23,9 @@ spack:
       operating_system: ubuntu16.04
       modules: []
   packages:
-    libtool:
-      externals:
-      - spec: libtool@2.4.6
-        prefix: /usr
-      buildable: false
     pkg-config:
       externals:
       - spec: pkg-config@0.29.1
-        prefix: /usr
-      buildable: false
-    autoconf:
-      externals:
-      - spec: autoconf@2.69
-        prefix: /usr
-      buildable: false
-    m4:
-      externals:
-      - spec: m4@1.4.17
         prefix: /usr
       buildable: false
     cmake:
@@ -48,13 +33,28 @@ spack:
       - spec: cmake@3.20.0
         prefix: /usr/local
       buildable: false
+    automake:
+      externals:
+      - spec: automake@1.15
+        prefix: /usr
+      buildable: false
     libfuse:
       externals:
       - spec: libfuse@2.9.4
         prefix: /
       buildable: false
-    automake:
+    libtool:
       externals:
-      - spec: automake@1.15
+      - spec: libtool@2.4.6
+        prefix: /usr
+      buildable: false
+    m4:
+      externals:
+      - spec: m4@1.4.17
+        prefix: /usr
+      buildable: false
+    autoconf:
+      externals:
+      - spec: autoconf@2.69
         prefix: /usr
       buildable: false

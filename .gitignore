@@ -1,0 +1,14 @@
+appimage-runtime/.spack-env/
+appimage-runtime/install/
+appimage-runtime/runtime
+appimage-runtime/runtime.o
+appimage-runtime/spack.lock
+appimage-runtime/view/
+bootstrap-spack/.spack-env/
+bootstrap-spack/install/
+bootstrap-spack/spack.lock
+bootstrap-spack/view/
+output/spack.x
+output/spack.squashfs
+spack/*
+spack/.*

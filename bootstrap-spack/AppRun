@@ -1,0 +1,19 @@
+#!/bin/sh
+
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+
+# ugh, this is so annoying
+unset SPACK_LD_LIBRARY_PATH
+
+# make our binaries and libs important
+export PATH="$HERE/view/bin/:$HERE/view/sbin/:$PATH:$HERE/spack/bin"
+export LD_LIBRARY_PATH="$HERE/view/lib/:$HERE/view/lib64/:$LD_LIBRARY_PATH"
+export PYTHONPATH="./view/lib/python3.8/site-packages:$PYTHONPATH"
+export SPACK_ROOT=$HERE/spack
+
+# TODO: PERLLIB ? (for git...)
+
+$HERE/view/bin/python3 $HERE/spack/bin/spack $@
+
+#$@

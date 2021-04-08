@@ -5,7 +5,7 @@ It would be great if installing Spack was easy and had itself 0 dependencies*.
 That's what this repository is about:
 
 ```
-$ wget [todo: i have to upload the final binary]/spack.x && chmod +x spack.x
+$ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.0.0/spack.x && chmod +x spack.x
 $ ./spack.x --version
 ```
 
@@ -13,6 +13,7 @@ $ ./spack.x --version
   still required deps, but they should be installed on your system (hopefully).
 
 ## Building a docker image with an old glibc, libfuse, spack, patchelf
+Notice: I'm using rootless docker for everything, this solves many file ownership issues inside/outside containers!
 
 ```console
 $ cd docker

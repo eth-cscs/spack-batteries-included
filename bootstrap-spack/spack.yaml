@@ -18,7 +18,7 @@ spack:
     all:
       target:
       - x86_64
-  view: /bootstrap-spack/view
+  view: ./view
   config:
     install_tree:
       root: ./install

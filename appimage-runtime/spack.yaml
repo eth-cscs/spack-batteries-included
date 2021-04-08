@@ -4,7 +4,7 @@ spack:
   - zstd~shared build_type=MinSizeRel
   - squashfs ~gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
   concretization: together
-  view: /appimage-runtime/view
+  view: ./view
   config:
     install_tree:
       root: ./install

@@ -1,18 +1,18 @@
 spack:
   specs:
-  - gmake
-  - git
-  - curl
-  - unzip
-  - tar
-  - gzip
   - bzip2
+  - clingo-bootstrap@spack
+  - curl
+  - git
+  - gmake
+  - gzip
+  - openssl ~systemcerts
+  - patch
+  - python
+  - tar
+  - unzip
   - xz
   - zstd
-  - python
-  - patch
-  - clingo-bootstrap@spack
-  - openssl ~systemcerts
   concretization: together
   packages:
     all:
@@ -24,7 +24,11 @@ spack:
       root: ./install
   compilers:
   - compiler:
-      flags: {}
+      flags:
+        fflags: -static-libgcc -fPIC
+        cflags: -static-libgcc -fPIC
+        cxxflags: -static-libstdc++ -static-libgcc -fPIC
+        ldflags:
       environment: {}
       modules: []
       target: x86_64

@@ -1,6 +1,6 @@
 # Spack with batteries included (linux/amd64)
 
-It would be great if installing Spack was easy and had itself 0 dependencies*.
+It would be great if installing Spack was easy and had itself 0 dependencies¹.
 
 That's what this repository is about:
 
@@ -9,24 +9,36 @@ $ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.
 $ ./spack.x --version
 ```
 
-\* Technically `libfuse2.so.2`, `libpthread.so.0`, `libc.so.6`, `libdl.so.2` are
-  still required deps, but they should be installed on your system (hopefully).
+¹ Technically the system dependencies are the following shared libraries:
+- `libc.so.6`
+- `libcrypt.so.1`
+- `libdl.so.2`
+- `libfuse2.so.2`
+- `libm.so.6`
+- `libpthread.so.0`
+- `libresolv.so.2`
+- `librt.so.1`
+- `libutil.so.1`
+of which libfuse2 is the only non-standard dependency. If your system supports
+rootless containers it likely has FUSE installed already! We can't statically
+link libfuse because it calls a setuid executable with a hard-coded path.
 
 ## How does it work?
-`spack.x` consists of a slightly hacked version* of the AppImage runtime concatenated
+`spack.x` consists of a slightly hacked² version of the AppImage runtime concatenated
 with a big squashfs file which includes `bzip2`, `clingo`, `curl`, `git`,
 `gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
 their dependencies.
 
-\* it uses zstd and dynamically links against libfuse.
+² it uses zstd for good compression and dynamically links against libfuse
+instead of dlopen'ing it.
 
 When you run `./spack.x [args]` it will use fusermount (through libfuse) to mount
 this squahfs file in a temporary directory, and then execute the entrypoint
 binary [AppRun](bootstrap-spack/AppRun).
 
-The AppRun executable sets some environment variables like PATH and DL_LIBRARY_PATH
-to the bin and lib folders of the squashfs file, and then it executes
-`python3 path/to/copy/of/spack/bin/spack [args]`.
+The AppRun executable sets some environment variables like PATH and
+`DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
+executes `python3 path/to/copy/of/spack/bin/spack [args]`.
 
 When the command is done running, the runtime unmounts the squashfs file again.
 

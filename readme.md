@@ -1,15 +1,17 @@
-# Spack with batteries included (linux/amd64)
+# 🔋 Spack with batteries included (linux/amd64)
 
-It would be great if installing Spack was easy and had itself 0 dependencies¹.
+Spack is a build tool, and build tools should be trivial to install.
 
-That's what this repository is about:
+This repo offers a single file executable for Spack:
 
 ```
 $ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.0.0/spack.x && chmod +x spack.x
 $ ./spack.x --version
 ```
 
-¹ Technically the system dependencies are the following shared libraries:
+## What are the actual dependencies?
+
+Technically the system dependencies are the following shared libraries:
 - `libc.so.6`
 - `libcrypt.so.1`
 - `libdl.so.2`
@@ -24,23 +26,26 @@ rootless containers it likely has FUSE installed already! We can't statically
 link libfuse because it calls a setuid executable with a hard-coded path.
 
 ## How does it work?
-`spack.x` consists of a slightly hacked² version of the AppImage runtime concatenated
+`spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
 with a big squashfs file which includes `bzip2`, `clingo`, `curl`, `git`,
 `gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
 their dependencies.
 
-² it uses zstd for good compression and dynamically links against libfuse
-instead of dlopen'ing it.
+When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
+mount this squahfs file in a temporary directory, and then execute the
+entrypoint binary [AppRun](bootstrap-spack/AppRun).
 
-When you run `./spack.x [args]` it will use fusermount (through libfuse) to mount
-this squahfs file in a temporary directory, and then execute the entrypoint
-binary [AppRun](bootstrap-spack/AppRun).
-
-The AppRun executable sets some environment variables like PATH and
+The AppRun executable sets some environment variables like `PATH` and
 `DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
 executes `python3 path/to/copy/of/spack/bin/spack [args]`.
 
 When the command is done running, the runtime unmounts the squashfs file again.
+
+## Differences from AppImage runtime
+- it uses `zstd` for good compression;
+- it dynamically links against libfuse instead of dlopen'ing it, this is
+  to support the latest version of squashfuse without patching it everywhere.
+
 
 ## Caveats
 **immutability** The squashfs mountpoint is a readonly folder, meaning that

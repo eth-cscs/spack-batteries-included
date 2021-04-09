@@ -1,14 +1,15 @@
 package main
 
 import (
-	"io"
-	"os"
-	"log"
-	"fmt"
-	"path/filepath"
 	"debug/elf"
-	"strings"
+	"fmt"
+	"io"
+	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"sort"
+	"strings"
 )
 
 func check(e error) {
@@ -58,7 +59,9 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 			return err
 		})
 		check(e)
-	}	
+	}
+
+	all_dt_needed := make(map[string]int)
 
 	for _, file := range fileList {
 		info, err := os.Lstat(file)
@@ -115,6 +118,13 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 		if _elf.Type != elf.ET_DYN && _elf.Type != elf.ET_EXEC {
 			log.Printf("Skipping %s (not dynamic lib or executable)\n", file)
 			continue
+		}
+
+		// collect DT_NEEDED
+		dt_needed, err := _elf.DynString(elf.DT_NEEDED)
+		check(err)
+		for _, lib := range dt_needed {
+			all_dt_needed[lib] += 1
 		}
 
 		// --- MAKE ELF FILES DT_RPATH AND DT_RUNPATH RELATIVE ---
@@ -179,6 +189,16 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 		err = set_rpath.Run()
 		check(err)
 	}
+
+	fmt.Println("Libraries found:")
+	libs := make([]string, 0, len(all_dt_needed))
+	for k := range all_dt_needed {
+		libs = append(libs, k)
+	}
+	sort.Strings(libs)
+	for _, lib := range libs {
+        fmt.Println(lib, all_dt_needed[lib])
+    }
 }
 
 func main() {

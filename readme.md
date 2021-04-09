@@ -26,6 +26,8 @@ of which libfuse2 is the only non-standard dependency. If your system supports
 rootless containers it likely has FUSE installed already! We can't statically
 link libfuse because it calls a setuid executable with a hard-coded path.
 
+Note: libfuse3 is supported too, but I have to polish the build script a bit.
+
 ## How does it work?
 `spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
 with a big squashfs file which includes `bzip2`, `clingo`, `curl`, `git`,

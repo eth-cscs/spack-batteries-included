@@ -1,0 +1,29 @@
+diff --git a/var/spack/repos/builtin/packages/gettext/package.py b/var/spack/repos/builtin/packages/gettext/package.py
+index e184c89333..aa10f62c3b 100644
+--- a/var/spack/repos/builtin/packages/gettext/package.py
++++ b/var/spack/repos/builtin/packages/gettext/package.py
+@@ -25,6 +25,8 @@ class Gettext(AutotoolsPackage, GNUMirrorPackage):
+     variant('tar',      default=True, description='Enable tar support')
+     variant('bzip2',    default=True, description='Enable bzip2 support')
+     variant('xz',       default=True, description='Enable xz support')
++    variant('openmp',   default=True, description='Enable OpenMP support')
++    variant('libasprintf', default=True, description='Build libasprintf')
+ 
+     # Optional variants
+     variant('libunistring', default=False, description='Use libunistring')
+@@ -92,6 +94,15 @@ def configure_args(self):
+         else:
+             config_args.append('--with-included-libunistring')
+ 
++        if '+git' not in spec:
++            config_args.append('--without-git')
++
++        if '+openmp' not in spec:
++            config_args.append('--disable-openmp')
++
++        if '+libasprintf' not in spec:
++            config_args.append('--disable-libasprintf')
++
+         return config_args
+ 
+     @property

@@ -46,15 +46,16 @@ RUN apt-get update -qq -y && \
 RUN mkdir -p /opt/spack && \
     curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /opt/spack
 
-# Apply horrible patch to drop -g and always use -Os
-# this is not really necessary, but well, it gives us small binaries :)
-RUN --mount=type=bind,source=hack-wrapper.patch,target=/root/hack-wrapper.patch \
-    cd /opt/spack && \
-    git apply /root/hack-wrapper.patch
-
-RUN --mount=type=bind,source=curl.patch,target=/root/curl.patch \
-    cd /opt/spack && \
-    git apply /root/curl.patch
-
 # Install cmake as a system dependency for now
 RUN curl -Ls "https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0-linux-x86_64.tar.gz" | tar --strip-components=1 -xz -C /usr/local
+
+# Apply horrible patch to drop -g and always use -Os
+# this is not really necessary, but well, it gives us small binaries :)
+RUN --mount=type=bind,source=patches,target=/patches \
+    cd /opt/spack && \
+    git apply /patches/curl.patch \
+              /patches/gettext.patch \
+              /patches/hack-wrapper.patch \
+              /patches/tar.patch \
+              /patches/berkeley-db.patch
+

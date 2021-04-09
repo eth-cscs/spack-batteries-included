@@ -6,18 +6,21 @@ spack:
   - git
   - gmake
   - gzip
-  - openssl ~systemcerts
   - patch
-  - python
+  - python ~dbm ~libxml2
   - tar
   - unzip
   - xz
-  - zstd
+  - zstd ~shared
   concretization: together
   packages:
     all:
       target:
       - x86_64
+    gettext:
+      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
+    openssl:
+      variants: ~systemcerts
   view: ./view
   config:
     install_tree:
@@ -25,8 +28,8 @@ spack:
   compilers:
   - compiler:
       flags:
-        fflags: -static-libgcc -fPIC
-        cflags: -static-libgcc -fPIC
+        fflags: -static-libstdc++ -static-libgcc -fPIC
+        cflags: -static-libstdc++ -static-libgcc -fPIC
         cxxflags: -static-libstdc++ -static-libgcc -fPIC
         ldflags:
       environment: {}

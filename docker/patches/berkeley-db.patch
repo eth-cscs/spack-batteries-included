@@ -1,0 +1,54 @@
+From fb58aca3dba719cb4353fecf5d7ca193eed2fb3e Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Fri, 9 Apr 2021 14:13:26 +0200
+Subject: [PATCH] Drop cxx berkeley-db
+
+---
+ var/spack/repos/builtin/packages/berkeley-db/package.py | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/var/spack/repos/builtin/packages/berkeley-db/package.py b/var/spack/repos/builtin/packages/berkeley-db/package.py
+index 1f62977f9a..4c405960ee 100644
+--- a/var/spack/repos/builtin/packages/berkeley-db/package.py
++++ b/var/spack/repos/builtin/packages/berkeley-db/package.py
+@@ -19,6 +19,8 @@ class BerkeleyDb(AutotoolsPackage):
+     version('5.3.28', sha256='e0a992d740709892e81f9d93f06daf305cf73fb81b545afe72478043172c3628')
+ 
+     variant('docs', default=False)
++    variant('cxx', default=False, description='Build with C++ API')
++    variant('stl', default=False, description='Build with C++ STL API')
+ 
+     configure_directory = 'dist'
+     build_directory = 'build_unix'
+@@ -28,6 +30,8 @@ class BerkeleyDb(AutotoolsPackage):
+     conflicts('%clang@7:', when='@5.3.28')
+     conflicts('%gcc@8:', when='@5.3.28')
+ 
++    conflicts('+stl', when='~cxx', msg='+stl implies +cxx')
++
+     def patch(self):
+         # some of the docs are missing in 18.1.40
+         if self.spec.satisfies("@18.1.40"):
+@@ -39,9 +43,7 @@ def configure_args(self):
+ 
+         config_args = [
+             '--disable-static',
+-            '--enable-cxx',
+             '--enable-dbm',
+-            '--enable-stl',
+             # compat with system berkeley-db on darwin
+             "--enable-compat185",
+             # SSL support requires OpenSSL, but OpenSSL depends on Perl, which
+@@ -49,6 +51,9 @@ def configure_args(self):
+             '--with-repmgr-ssl=no',
+         ]
+ 
++        config_args += self.enable_or_disable('cxx')
++        config_args += self.enable_or_disable('stl')
++
+         # The default glibc provided by CentOS 7 and Red Hat 8 does not provide
+         # proper atomic support when using the NVIDIA compilers
+         if (spec.satisfies('%nvhpc')
+-- 
+2.25.1
+

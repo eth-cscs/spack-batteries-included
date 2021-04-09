@@ -61,7 +61,8 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 		check(e)
 	}
 
-	all_dt_needed := make(map[string]int)
+	all_dt_needed := make(map[string][]string)
+	all_so_names := make(map[string]bool)
 
 	for _, file := range fileList {
 		info, err := os.Lstat(file)
@@ -124,7 +125,14 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 		dt_needed, err := _elf.DynString(elf.DT_NEEDED)
 		check(err)
 		for _, lib := range dt_needed {
-			all_dt_needed[lib] += 1
+			all_dt_needed[lib] = append(all_dt_needed[lib], file)
+		}
+
+		// collect SONAME
+		dt_soname, err := _elf.DynString(elf.DT_SONAME)
+		check(err)
+		for _, soname := range dt_soname {
+			all_so_names[soname] = true
 		}
 
 		// --- MAKE ELF FILES DT_RPATH AND DT_RUNPATH RELATIVE ---
@@ -190,14 +198,24 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 		check(err)
 	}
 
-	fmt.Println("Libraries found:")
+	fmt.Println("Linked system libraries found:")
+	// Remove libs we ship from the list
+	for so_name := range all_so_names {
+		delete(all_dt_needed, so_name);
+	}
 	libs := make([]string, 0, len(all_dt_needed))
-	for k := range all_dt_needed {
-		libs = append(libs, k)
+	for key := range all_dt_needed {
+		libs = append(libs, key)
 	}
 	sort.Strings(libs)
 	for _, lib := range libs {
-        fmt.Println(lib, all_dt_needed[lib])
+        fmt.Printf("%s:\n", lib)
+
+		for _, file := range all_dt_needed[lib] {
+			rel_path, err := filepath.Rel(root, file)
+			check(err)
+			fmt.Printf(" - %s\n", rel_path)
+		}
     }
 }
 

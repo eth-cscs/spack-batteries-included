@@ -1,0 +1,10 @@
+diff --git a/var/spack/repos/builtin/packages/tar/package.py b/var/spack/repos/builtin/packages/tar/package.py
+index 58e4de1877..4e6381f6e2 100644
+--- a/var/spack/repos/builtin/packages/tar/package.py
++++ b/var/spack/repos/builtin/packages/tar/package.py
+@@ -47,4 +47,5 @@ def determine_version(cls, exe):
+     def configure_args(self):
+         return [
+             '--with-libiconv-prefix={0}'.format(self.spec['iconv'].prefix),
++            '--without-selinux'
+         ]

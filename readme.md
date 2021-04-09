@@ -21,6 +21,7 @@ Technically the system dependencies are the following shared libraries:
 - `libresolv.so.2`
 - `librt.so.1`
 - `libutil.so.1`
+
 of which libfuse2 is the only non-standard dependency. If your system supports
 rootless containers it likely has FUSE installed already! We can't statically
 link libfuse because it calls a setuid executable with a hard-coded path.

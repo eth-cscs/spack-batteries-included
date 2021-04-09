@@ -64,15 +64,12 @@ For some reason `--log-file` is the only thing you *need* to specify on the
 command line to avoid that spack fails with readonly filesystem errors; it
 can't be set in the `config:` section :(.
 
-**openssl**: I'm not 100% sure how to properly deal with openssl certificates.
-Until I have figured that one out, you may want to disable https certificate
-checking:
+**openssl**: curl/openssl have to use system certificates. I'm not making any
+assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR` env
+variable to a list of common paths. This seems to work fine on most systems.
 
-```console
-$ ./spack.x -k -e . install --log-file log.log
-```
-
-You can still rely on checksums of downloads anyways if security is a concern.
+If your certificates are in a non-standard location, set `SSL_CERT_DIR`
+yourself.
 
 ## My system doesn't have libfuse, what now?
 

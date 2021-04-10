@@ -135,7 +135,7 @@ so that make does not download a new Spack tarball each time.
 Or even:
 
 ```console
-spack.x-quick
+make spack.x-quick
 ```
 
 which does not rebuild the bootstrap and runtime environments, but just creates

@@ -16,6 +16,7 @@ export LD_LIBRARY_PATH="$HERE/view/lib/:$HERE/view/lib64/:$LD_LIBRARY_PATH"
 export PYTHONPATH="$HERE/view/lib/python3.8/site-packages:$PYTHONPATH"
 export SPACK_ROOT=$HERE/spack
 export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
+export MAGIC="$HERE/view/share/misc/magic.mgc"
 # TODO: PERLLIB
 
 $HERE/view/bin/python3 $HERE/spack/bin/spack $@

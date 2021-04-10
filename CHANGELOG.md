@@ -1,4 +1,4 @@
-v1.0.0-DEV
+v1.0.1
 - Replace README.md steps with a `Makefile`.
 - Add `file` and `binutils` as dependencies.
 - Fix an issue where hardlinks in `git` and `binutils` broke relative RPATHs

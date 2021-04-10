@@ -30,8 +30,8 @@ Note: libfuse3 is supported too, but I have to polish the build script a bit.
 
 ## How does it work?
 `spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
-with a big squashfs file which includes `bzip2`, `clingo`, `curl`, `git`,
-`gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
+with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
+`git`, `gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
 their dependencies.
 
 When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to

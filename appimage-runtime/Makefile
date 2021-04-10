@@ -40,7 +40,5 @@ install: runtime embed
 	$(MAGIC) build/runtime
 
 clean:
-	rm -f *.o 1024_blank_bytes
+	rm -f *.o 1024_blank_bytes runtime
 
-mrproper: clean
-	rm -f runtime

@@ -3,6 +3,7 @@ spack:
   - bzip2
   - clingo-bootstrap@spack
   - curl
+  - file
   - git
   - gmake
   - gzip

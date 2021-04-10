@@ -108,50 +108,42 @@ but obviously this is not great on your average Lustre filesystem.
 
 ## How do I build spack.x myself?
 
-### Building a docker image with an old glibc, libfuse, spack, patchelf
-Notice: I'm using rootless Docker for everything, this solves many file
-ownership issues inside/outside containers!
+It's best to install rootless Docker on your system:
+
+https://docs.docker.com/engine/security/rootless/
+
+Optionally you need `curl` (to download the latest spack) and `go` (to build a
+tool for making spack environment relocatable). Sinc the go binary is small and
+static, it's actually just included in the git repo.
+
+To build the latest everything from scratch (docker image, appimage runtime,
+spack dependencies), run:
 
 ```console
-$ cd docker
-$ DOCKER_BUILDKIT=1 docker build --progress=plain -t spack-old-glibc .
+make
 ```
 
-### (optional) Building a tool to make rpaths, runpaths, symlinks relative
-This is not containerized yet, but who needs that for go...
-```console
-$ cd env-tools
-$ go build -ldflags "-s -w" make_relative_env.go
-```
-The binary is so small and static anyways, so it's included in git.
+Afterwards you may want to use just
 
-### Using this image to build all spack dependencies for x86_64
 ```console
-$ docker run --rm -e SSL_CERT_DIR=/etc/ssl/certs/ -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack --color=always -e . install --fail-fast -v
-$ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack -e . gc -y
-$ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc bash -c 'find . -iname "*.a" | xargs rm'
-$ docker run --rm -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/env-tools:/env-tools -w /bootstrap-spack spack-old-glibc /env-tools/make_relative_env . view install
+make spack.x
 ```
 
-### "Install spack"
-Just using the develop version here:
+so that make does not download a new Spack tarball each time.
+
+Or even:
+
 ```console
-$ curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C bootstrap-spack/spack
+spack.x-quick
 ```
 
-### Build the minimal AppImage runtime (with spack of course)
-```console
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack -e . concretize -f
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack -e . install -v
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -w /appimage-runtime -e C_INCLUDE_PATH=/appimage-runtime/view/include -e LIBRARY_PATH=/appimage-runtime/view/lib spack-old-glibc make
+which does not rebuild the bootstrap and runtime environments, but just creates
+the `spack.x` binary -- this is useful if you modified `bootstrap/spack` by
+hand and just need to bundle it into `spack.x`.
+
+The final products are:
+
 ```
-
-### Creating the Spack Appimage with mksquashfs
-
-```console
-$ rm -f output/spack.squashfs output/spack.x
-$ docker run --rm -v $PWD/appimage-runtime:/appimage-runtime -v $PWD/bootstrap-spack:/bootstrap-spack -v $PWD/output:/output -w /output spack-old-glibc /appimage-runtime/view/bin/mksquashfs /bootstrap-spack spack.squashfs
-$ cat appimage-runtime/runtime output/spack.squashfs > output/spack.x
-$ chmod +x output/spack.x
+output/spack.x            # the executable + archive
+output/spack.squashfs     # just an archive, in case your system doesn't have libfuse.
 ```

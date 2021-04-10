@@ -5,7 +5,7 @@ Spack is a build tool, and build tools should be trivial to install.
 This repo offers a single file executable for Spack:
 
 ```
-$ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.0.0/spack.x && chmod +x spack.x
+$ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.0.1/spack.x && chmod +x spack.x
 $ ./spack.x --version
 ```
 

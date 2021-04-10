@@ -58,3 +58,6 @@ bootstrap-install-spack-develop: bootstrap
 
 clean:
 	rm -f output/spack.x output/spack.squashfs
+
+clean-bootstrap:
+	rm -rf bootstrap-spack/install bootstrap/.spack-env bootstrap/view bootstrap/spack.lock

@@ -40,7 +40,7 @@ jobs:
           echo $SPACK_SHA > spack_x/squashfs-root/spack_sha
 
           # Create a new squashfs file
-          ./runtime_x/squashfs-root/view/bin/squashfs spack_x/squashfs-root spack.squashfs
+          ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs
 
           # Overwrite spack.x
           cat runtime_x/squashfs-root/runtime spack.squashfs > spack.x

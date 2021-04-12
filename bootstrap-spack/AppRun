@@ -18,8 +18,9 @@ fi
 export PATH="$HERE/view/bin/:$HERE/view/sbin/:$PATH:$HERE/spack/bin"
 export LD_LIBRARY_PATH="$HERE/view/lib/:$HERE/view/lib64/:$LD_LIBRARY_PATH"
 export PYTHONPATH="$HERE/view/lib/python3.8/site-packages:$PYTHONPATH"
-export SPACK_ROOT=$HERE/spack
+export SPACK_ROOT="$HERE/spack"
 export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
+export GIT_TEMPLATE_DIR="$HERE/view/share/git-core/templates/"
 export MAGIC="$HERE/view/share/misc/magic.mgc"
 export TERMINFO="$HERE/view/share/terminfo"
 # TODO: PERLLIB

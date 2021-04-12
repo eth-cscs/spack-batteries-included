@@ -93,8 +93,8 @@ spack.yaml spack.x
 $ ./spack.x -e . install
 ```
 
-Note, spack.x applies includes [this open PR](https://github.com/spack/spack/pull/20158/)
-which ensures that log files are written to the `config:misc_cache` folder.
+Note, spack.x applies [this patch](https://github.com/spack/spack/pull/20158/)
+to ensure that log files are written to the `config:misc_cache` folder.
 
 **openssl**: curl/openssl have to use system certificates. I'm not making any
 assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR` env

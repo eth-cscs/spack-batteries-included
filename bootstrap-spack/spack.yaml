@@ -9,6 +9,7 @@ spack:
   - gmake
   - gzip
   - patch
+  - patchelf
   - python ~dbm ~libxml2
   - tar
   - unzip

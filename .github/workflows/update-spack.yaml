@@ -8,8 +8,6 @@ on:
 jobs:
   bundle:
     runs-on: ubuntu-latest
-    container:
-      image: stabbles/spack-old-glibc
     steps:
       - uses: actions/checkout@v2
       - name: Download artifacts

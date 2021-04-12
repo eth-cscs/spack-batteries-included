@@ -4,9 +4,19 @@ Spack is a build tool, and build tools should be trivial to install.
 
 This repo offers a single file executable for Spack:
 
-```
-$ wget https://github.com/haampie/spack-batteries-included/releases/download/v1.0.1/spack.x && chmod +x spack.x
+```console
+$ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.x
 $ ./spack.x --version
+```
+
+## What version of Spack is shipped?
+
+The URL above gives you a rolling release of Spack's develop branch, which is updated
+hourly. The exact commit SHA is included as a file and can be retrieved like this:
+
+```console
+$ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
+[prints the Spack commit sha]
 ```
 
 ## What are the actual dependencies?

@@ -116,6 +116,29 @@ usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
 
 but obviously this is not great on your average Lustre filesystem.
 
+## Can I run spack.x inside a container?
+
+Yes, but please don't! The reason is that spack.x needs to call fusermount
+through libfuse. Since fusermount is a setuid binary, you will need to run a
+privileged container, which is never a good idea.
+
+The recommended way to run spack.x inside a container is to just extract it:
+
+```console
+$ ./spack.x --appimage-extract
+$ docker run -it -v $PWD/squashfs-root:/spack ubuntu:18.04
+$ ln -s /spack/AppRun /bin/spack
+$ spack --version
+```
+
+If you insist on runnin spack.x in Docker, this is how to do it:
+
+```console
+$ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack.x ubuntu:18.04
+# apt-get update && apt-get install fuse
+# ./spack.x --version
+```
+
 --------------------------------------------------------------------------------
 
 ## How do I build spack.x myself?

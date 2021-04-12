@@ -108,15 +108,16 @@ yourself.
 ## My system doesn't have libfuse, what now?
 
 libfuse is just for self-mounting magic, if you don't want that, you can extract
-the squashfs folder (assuming you have libfuse available at least somewhere):
+the squashfs folder and work with that:
 
 ```
-$ spack.x --appimage-extract
+$ docker run -v $PWD:/work -w /work ubuntu:16.04 /bin/bash -c 'apt-get update -qq && apt-get install -yqq fuse && ./spack.x --appimage-extract'
 $ ./squashfs-root/AppRun 
 usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
 ```
 
-but obviously this is not great on your average Lustre filesystem.
+but working with the extracted `squashfs-root` folder can come with a large
+performance penalty, especially on Lustre filesystems in HPC centers.
 
 ## Can I run spack.x inside a container?
 

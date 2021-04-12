@@ -45,8 +45,8 @@ TODO: The [AppRun](bootstrap-spack/AppRun) file should be replaced with a static
 ## How does it work?
 `spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
 with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
-`git`, `gmake`, `gzip`, `openssl`, `patch`, `python`, `tar`, `unzip`, `xz`, `zstd` and
-their dependencies.
+`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
+`zstd` and their dependencies.
 
 When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
 mount this squashfs file in a temporary directory, and then execute the

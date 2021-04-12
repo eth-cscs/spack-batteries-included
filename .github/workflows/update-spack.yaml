@@ -1,0 +1,58 @@
+name: Update spack develop version
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 1 * * *'
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    container:
+      image: stabbles/spack-old-glibc
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download artifacts
+        run: |
+          # Download the latest stable spack.x release and the latest runtime.x
+          curl -L -o spack.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.1/spack.x
+          curl -L -o runtime.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.1/runtime.x
+          chmod +x spack.x runtime.x
+
+          # Get the SHA of the latest spack release
+          export SPACK_SHA=$(git ls-remote https://github.com/spack/spack.git | grep refs/heads/develop | head -n1 | awk '{ print $1}')
+
+          # Extract them.
+          mkdir spack_x runtime_x
+          pushd spack_x
+          ../spack.x --appimage-extract
+          popd
+          pushd runtime_x
+          ../runtime.x --appimage-extract
+          popd
+
+          # Replace the spack version
+          rm -rf spack_x/squashfs-root/spack
+          mkdir spack_x/squashfs-root/spack          
+          curl -Ls "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_x/squashfs-root/spack
+          
+          # Let's store the the spack SHA in here too
+          echo $SPACK_SHA > spack_x/squashfs-root/spack_sha
+
+          # Create a new squashfs file
+          ./runtime_x/squashfs-root/view/bin/squashfs spack_x/squashfs-root spack.squashfs
+
+          # Overwrite spack.x
+          cat runtime_x/squashfs-root/runtime spack.squashfs > spack.x
+      - name: Upload spack.x
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: spack.x
+          asset_name: spack.x
+          tag: develop
+          overwrite: true
+          body: "Automatically updating release"
+
+
+

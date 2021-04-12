@@ -130,8 +130,8 @@ The recommended way to run spack.x inside a container is to just extract it:
 ```console
 $ ./spack.x --appimage-extract
 $ docker run -it -v $PWD/squashfs-root:/spack ubuntu:18.04
-$ ln -s /spack/AppRun /bin/spack
-$ spack --version
+# ln -s /spack/AppRun /bin/spack
+# spack --version
 ```
 
 If you insist on running spack.x in Docker, this is how to do it:

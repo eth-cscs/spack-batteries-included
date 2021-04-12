@@ -40,6 +40,8 @@ link libfuse because it [calls a setuid executable with a hard-coded path](https
 
 Note: libfuse3 is supported too, but I have to polish the build script a bit.
 
+TODO: The [AppRun](bootstrap-spack/AppRun) file should be replaced with a static executable, as it currently adds a dependency on `sh` and `readlink`.
+
 ## How does it work?
 `spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
 with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,

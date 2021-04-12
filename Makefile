@@ -36,8 +36,11 @@ squashfs: docker
 env-tools: env-tools/make_relative_env.go
 	$(GO) build -ldflags "-s -w" -o env-tools/make_relative_env env-tools/make_relative_env.go
 
+AppRun: appimage-runtime/AppRun.go
+	$(GO) build -ldflags "-s -w" -o bootstrap-spack/AppRun appimage-runtime/AppRun.go
+
 # Create a runtime executable for AppImage (using zstd and dynamic linking against libfuse)
-runtime: docker appimage-runtime/spack.yaml
+runtime: docker appimage-runtime/spack.yaml AppRun
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . concretize -f
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . install -v

@@ -36,7 +36,7 @@ Technically the system dependencies are the following shared libraries:
 
 of which libfuse2 is the only non-standard dependency. If your system supports
 rootless containers it likely has FUSE installed already! We can't statically
-link libfuse because it calls a setuid executable with a hard-coded path.
+link libfuse because it [calls a setuid executable with a hard-coded path](https://github.com/libfuse/libfuse/blob/f4eaff6af0be41f48368213bd72161c2c092a50f/lib/mount.c#L117-L121).
 
 Note: libfuse3 is supported too, but I have to polish the build script a bit.
 

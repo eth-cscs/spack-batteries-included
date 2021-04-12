@@ -33,7 +33,7 @@ jobs:
 
           # Replace the spack version
           rm -rf spack_x/squashfs-root/spack
-          mkdir spack_x/squashfs-root/spack          
+          mkdir spack_x/squashfs-root/spack
           curl -Ls "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_x/squashfs-root/spack
           
           # Let's store the the spack SHA in here too

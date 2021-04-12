@@ -2,8 +2,8 @@ name: Update spack develop version
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 1 * * *'
+  schedule:
+    - cron: '0 * * * *'
 
 jobs:
   bundle:

@@ -1,3 +1,5 @@
+[![Update spack develop version](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml/badge.svg?branch=master)](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml)
+
 # 🔋 Spack with batteries included (linux/amd64)
 
 Spack is a build tool, and build tools should be trivial to install.

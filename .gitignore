@@ -8,8 +8,8 @@ bootstrap-spack/.spack-env/
 bootstrap-spack/install/
 bootstrap-spack/spack.lock
 bootstrap-spack/view/
-output/spack.x
-output/spack.squashfs
+output/*.x
+output/*.squashfs
 bootstrap-spack/spack/*
 bootstrap-spack/spack/.*
 spack-cc-*

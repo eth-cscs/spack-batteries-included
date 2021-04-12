@@ -24,7 +24,7 @@ docker: docker/Dockerfile
 squashfs: docker
 	rm -f output/spack.squashfs
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime \
-	                -v $(CURDIR)/bootstrap-spack:/bootstrap-spack \
+					-v $(CURDIR)/bootstrap-spack:/bootstrap-spack \
 					-v $(CURDIR)/output:/output \
 					-w /output $(IMAGE_NAME) \
 					/appimage-runtime/view/bin/mksquashfs \
@@ -66,3 +66,6 @@ clean:
 
 clean-bootstrap:
 	rm -rf bootstrap-spack/install bootstrap/.spack-env bootstrap/view bootstrap/spack.lock
+
+clean-docker:
+	$(DOCKER) rmi $(IMAGE_NAME)

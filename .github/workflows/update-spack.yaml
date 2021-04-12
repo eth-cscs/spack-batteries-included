@@ -41,8 +41,9 @@ jobs:
 
           # Apply the patch that allows you to drop specifying --log-file
           cd spack_x/squashfs-root/spack
-          git apply ../20158.patch
-          cp ../config.yaml etc/spack/
+          git apply $GITHUB_WORKSPACE/bootstrap-spack/20158.patch
+          cp $GITHUB_WORKSPACE/bootstrap-spack/config.yaml etc/spack/
+          cd ../../..
 
           # Create a new squashfs file
           ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs
@@ -55,6 +56,15 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: spack.x
           asset_name: spack.x
+          tag: develop
+          overwrite: true
+          body: "Automatically updating release"
+      - name: Upload spack.squashfs
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: spack.squashfs
+          asset_name: spack.squashfs
           tag: develop
           overwrite: true
           body: "Automatically updating release"

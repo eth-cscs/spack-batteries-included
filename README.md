@@ -78,8 +78,6 @@ spack:
   view: ./view               # not required but useful sometimes
   config:
     concretizer: clingo      # clingo is included in spack.x
-    source_cache: ./cache    # avoid writing to readonly mountpoint
-    misc_cache: ./misc_cache # avoid writing to readonly mountpoint
     module_roots:
       tcl: ./tcl_modules     # avoid writing to readonly mountpoint
       lmod: ./lmod_modules   # avoid writing to readonly mountpoint
@@ -92,11 +90,11 @@ And then you run `spack.x` like this:
 ```console
 $ ls
 spack.yaml spack.x
-$ ./spack.x -e . install --log-file log.log
+$ ./spack.x -e . install
 ```
-For some reason `--log-file` is the only thing you *need* to specify on the
-command line to avoid that spack fails with readonly filesystem errors; it
-can't be set in the `config:` section :(.
+
+Note, spack.x applies includes [this open PR](https://github.com/spack/spack/pull/20158/)
+which ensures that log files are written to the `config:misc_cache` folder.
 
 **openssl**: curl/openssl have to use system certificates. I'm not making any
 assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR` env

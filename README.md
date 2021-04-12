@@ -105,11 +105,12 @@ yourself.
 
 ## My system doesn't have libfuse, what now?
 
-libfuse is just for self-mounting magic, if you don't want that, you can extract
-the squashfs folder and work with that:
+libfuse is used to mount a squashfs file included in the binary. If you don't
+want that, you can download the squashfs file and extract it.
 
 ```
-$ docker run -v $PWD:/work -w /work ubuntu:16.04 /bin/bash -c 'apt-get update -qq && apt-get install -yqq fuse && ./spack.x --appimage-extract'
+$ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.squashfs
+$ unsquashfs spack.squashfs
 $ ./squashfs-root/AppRun 
 usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
 ```

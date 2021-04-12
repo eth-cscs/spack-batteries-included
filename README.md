@@ -96,12 +96,13 @@ $ ./spack.x -e . install
 Note, spack.x applies [this patch](https://github.com/spack/spack/pull/20158/)
 to ensure that log files are written to the `config:misc_cache` folder.
 
-**openssl**: curl/openssl have to use system certificates. I'm not making any
-assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR` env
-variable to a list of common paths. This seems to work fine on most systems.
+**openssl**: curl/git/openssl have to use system certificates. I'm not making any
+assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR`
+and `GIT_SSL_CAPATH` variables to a list of common paths. This seems to work fine
+on most systems.
 
-If your certificates are in a non-standard location, set `SSL_CERT_DIR`
-yourself.
+If your certificates are in a non-standard location, point `SSL_CERT_DIR`
+and `GIT_SSL_CAPATH` to it.
 
 ## My system doesn't have libfuse, what now?
 

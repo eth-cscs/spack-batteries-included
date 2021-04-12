@@ -24,12 +24,12 @@ jobs:
 
           # Extract them.
           mkdir spack_x runtime_x
-          pushd spack_x
+          cd spack_x
           ../spack.x --appimage-extract
-          popd
-          pushd runtime_x
+          cd ..
+          cd runtime_x
           ../runtime.x --appimage-extract
-          popd
+          cd ..
 
           # Replace the spack version
           rm -rf spack_x/squashfs-root/spack

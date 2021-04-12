@@ -1,0 +1,26 @@
+From c80c50c5f86acb21ee6a4cd5751713e0d58ffb33 Mon Sep 17 00:00:00 2001
+From: Valentin Volkl <valentin.volkl@cern.ch>
+Date: Sun, 29 Nov 2020 11:26:51 +0100
+Subject: [PATCH] write  junit-report to misc-cache to allow installation from
+ read-only spack
+
+---
+ lib/spack/spack/cmd/install.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/lib/spack/spack/cmd/install.py b/lib/spack/spack/cmd/install.py
+index 3b5954b1ad68..a2413272ca3d 100644
+--- a/lib/spack/spack/cmd/install.py
++++ b/lib/spack/spack/cmd/install.py
+@@ -177,7 +177,10 @@ def default_log_file(spec):
+     """
+     fmt = 'test-{x.name}-{x.version}-{hash}.xml'
+     basename = fmt.format(x=spec, hash=spec.dag_hash())
+-    dirname = fs.os.path.join(spack.paths.var_path, 'junit-report')
++    dirname = spack.config.get(
++        'config:misc_cache', spack.paths.var_path)
++    dirname = spack.util.path.canonicalize_path(dirname)
++    dirname = fs.os.path.join(dirname, 'junit-report')
+     fs.mkdirp(dirname)
+     return fs.os.path.join(dirname, basename)
+ 

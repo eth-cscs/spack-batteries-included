@@ -39,6 +39,11 @@ jobs:
           # Let's store the the spack SHA in here too
           echo $SPACK_SHA > spack_x/squashfs-root/spack_sha
 
+          # Apply the patch that allows you to drop specifying --log-file
+          cd spack_x/squashfs-root/spack
+          git apply ../20158.patch
+          cp ../config.yaml etc/spack/
+
           # Create a new squashfs file
           ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs
 

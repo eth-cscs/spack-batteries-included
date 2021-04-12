@@ -1,0 +1,9 @@
+config:
+  test_stage: $tempdir/$user/test_stage
+  source_cache: $tempdir/$user/source_cache
+  misc_cache: $tempdir/$user/misc_cache
+  module_roots:
+    tcl: ~/spack/share/spack/modules
+    lmod: ~/spack/share/spack/lmod
+  install_tree:
+    root: ~/spack/opt/spack

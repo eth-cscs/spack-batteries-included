@@ -131,7 +131,7 @@ $ ln -s /spack/AppRun /bin/spack
 $ spack --version
 ```
 
-If you insist on runnin spack.x in Docker, this is how to do it:
+If you insist on running spack.x in Docker, this is how to do it:
 
 ```console
 $ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack.x ubuntu:18.04

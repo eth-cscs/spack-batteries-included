@@ -1,6 +1,7 @@
 DOCKER ?= docker
 CURL ?= curl
 GO ?= go
+IMAGE_NAME ?= spack-old-glibc
 
 all: spack.develop.x
 
@@ -17,14 +18,14 @@ spack.x-quick: squashfs
 
 # Build a docker image with an old version of glibc
 docker: docker/Dockerfile
-	DOCKER_BUILDKIT=1 $(DOCKER) build --progress=plain -t spack-old-glibc docker/
+	DOCKER_BUILDKIT=1 $(DOCKER) build --progress=plain -t $(IMAGE_NAME) docker/
 
 squashfs: docker
 	rm -f output/spack.squashfs
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime \
 	                -v $(CURDIR)/bootstrap-spack:/bootstrap-spack \
 					-v $(CURDIR)/output:/output \
-					-w /output spack-old-glibc \
+					-w /output $(IMAGE_NAME) \
 					/appimage-runtime/view/bin/mksquashfs \
 					/bootstrap-spack spack.squashfs
 
@@ -36,19 +37,19 @@ env-tools: env-tools/make_relative_env.go
 
 # Create a runtime executable for AppImage (using zstd and dynamic linking against libfuse)
 runtime: docker appimage-runtime/spack.yaml
-	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack --color=always -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
-	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack --color=always -e . concretize -f
-	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc spack --color=always -e . install -v
-	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime spack-old-glibc make clean
-	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime -e C_INCLUDE_PATH=/appimage-runtime/view/include -e LIBRARY_PATH=/appimage-runtime/view/lib spack-old-glibc make
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . concretize -f
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . install -v
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) make clean
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime -e C_INCLUDE_PATH=/appimage-runtime/view/include -e LIBRARY_PATH=/appimage-runtime/view/lib $(IMAGE_NAME) make
 
 # Install spack's own dependencies using the docker image, remove its build dependencies
 # and remove static libaries too. Then try to make all paths relative using the Go script.
 bootstrap: docker env-tools/make_relative_env bootstrap-spack/spack.yaml
-	$(DOCKER) run --rm -e SSL_CERT_DIR=/etc/ssl/certs/ -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack --color=always -e . install --fail-fast -v
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc spack --color=always -e . gc -y
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack spack-old-glibc bash -c 'find . -iname "*.a" | xargs rm -f'
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -w /bootstrap-spack spack-old-glibc /env-tools/make_relative_env . view install
+	$(DOCKER) run --rm -e SSL_CERT_DIR=/etc/ssl/certs/ -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . install --fail-fast -v
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . gc -y
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -w /bootstrap-spack $(IMAGE_NAME) /env-tools/make_relative_env . view install
 
 # Download the latest version of spack as a tarball from GitHub
 bootstrap-install-spack-develop: bootstrap

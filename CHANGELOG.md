@@ -1,3 +1,6 @@
+v1.0.2-DEV
+- Generate `__pycache__` before packaging.
+
 v1.0.2
 - Add patchelf
 - Add more variables: `GIT_SSL_CAPATH`, `GIT_TEMPLATE_DIR`, `TERMINFO`.

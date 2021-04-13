@@ -50,7 +50,9 @@ bootstrap: docker env-tools/make_relative_env bootstrap-spack/spack.yaml
 	$(DOCKER) run --rm -e SSL_CERT_DIR=/etc/ssl/certs/ -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . install --fail-fast -v
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . gc -y
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -w /bootstrap-spack $(IMAGE_NAME) /env-tools/make_relative_env . view install
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
 
 # Download the latest version of spack as a tarball from GitHub
 # Notice, we apply the patch from https://github.com/spack/spack/pull/20158/
@@ -60,6 +62,8 @@ bootstrap-install-spack-develop: bootstrap
 	$(CURL) -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C bootstrap-spack/spack
 	$(PATCH) -p1 -d bootstrap-spack/spack -i $(CURDIR)/bootstrap-spack/20158.patch
 	cp bootstrap-spack/config.yaml bootstrap-spack/spack/etc/spack/
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
 
 clean:
 	rm -f output/spack.x output/spack.squashfs

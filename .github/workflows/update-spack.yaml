@@ -45,6 +45,12 @@ jobs:
           cp $GITHUB_WORKSPACE/bootstrap-spack/config.yaml etc/spack/
           cd ../../..
 
+          # Generate __pycache__ files
+          cd spack_x/squashfs-root
+          find . -iname "__pycache__" | xargs rm -rf
+	        ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
+          cd ../..
+
           # Create a new squashfs file
           ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs
 

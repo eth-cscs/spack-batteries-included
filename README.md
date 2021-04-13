@@ -25,21 +25,15 @@ $ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
 
 Technically the system dependencies are:
 - glibc 2.23 and above:
-  - `libc.so.6`
-  - `libcrypt.so.1`
-  - `libdl.so.2`
-  - `libm.so.6`
-  - `libpthread.so.0`
-  - `libresolv.so.2`
-  - `librt.so.1`
-  - `libutil.so.1`
+  - `libc.so.6`, `libcrypt.so.1`, `libdl.so.2`, `libm.so.6`, `libpthread.so.0`,
+    `libresolv.so.2`, `librt.so.1`, `libutil.so.1`
 - `libfuse2.so.2`
 
 of which libfuse2 is the only non-standard dependency. If your system supports
 rootless containers it likely has FUSE installed already! We can't statically
 link libfuse because it [calls a setuid executable with a hard-coded path](https://github.com/libfuse/libfuse/blob/f4eaff6af0be41f48368213bd72161c2c092a50f/lib/mount.c#L117-L121).
 
-glibc 2.23 is requires:
+glibc 2.23 is supported by:
 - CentOS 8+
 - Ubuntu 16.04+
 - Debian 9+

@@ -1,5 +1,6 @@
-v1.0.2-DEV
+v1.0.3
 - Generate `__pycache__` before packaging.
+- Remove `ld` from binutils, which was included by accident
 
 v1.0.2
 - Add patchelf

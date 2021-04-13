@@ -48,7 +48,7 @@ jobs:
           # Generate __pycache__ files
           cd spack_x/squashfs-root
           find . -iname "__pycache__" | xargs rm -rf
-	        ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
+          ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
           cd ../..
 
           # Create a new squashfs file

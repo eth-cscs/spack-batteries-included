@@ -1,6 +1,6 @@
 spack:
   specs:
-  - binutils ~gold ~ld
+  - binutils ~gold ~ld ~nls
   - bzip2
   - clingo-bootstrap@spack
   - curl

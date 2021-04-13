@@ -54,7 +54,7 @@ with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `
 
 When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
 mount this squashfs file in a temporary directory, and then execute the
-entrypoint binary [AppRun](bootstrap-spack/AppRun).
+entrypoint executable [AppRun](bootstrap-spack/AppRun).
 
 The AppRun executable sets some environment variables like `PATH` and
 `DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it

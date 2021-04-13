@@ -2,7 +2,7 @@
 
 # 🔋 Spack with batteries included (linux/amd64)
 
-Spack is a build tool, and build tools should be trivial to install.
+[Spack](https://github.com/spack/spack) is a build tool, and build tools should be trivial to install.
 
 This repo offers a single file executable for Spack:
 
@@ -10,6 +10,22 @@ This repo offers a single file executable for Spack:
 $ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.x
 $ ./spack.x --version
 ```
+
+## How does it work?
+`spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
+with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
+`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
+`zstd` and their dependencies.
+
+When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
+mount this squashfs file in a temporary directory, and then execute the
+entrypoint executable [AppRun](bootstrap-spack/AppRun).
+
+The AppRun executable sets some environment variables like `PATH` and
+`DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
+executes `python3 path/to/copy/of/spack/bin/spack [args]`.
+
+When the command is done running, the runtime unmounts the squashfs file again.
 
 ## What version of Spack is shipped?
 
@@ -45,22 +61,6 @@ glibc 2.23 is supported by:
 Note: libfuse3 is supported too, but I have to polish the build script a bit.
 
 TODO: The [AppRun](bootstrap-spack/AppRun) file should be replaced with a static executable, as it currently adds a dependency on `sh` and `readlink`.
-
-## How does it work?
-`spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
-with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
-`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
-`zstd` and their dependencies.
-
-When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
-mount this squashfs file in a temporary directory, and then execute the
-entrypoint executable [AppRun](bootstrap-spack/AppRun).
-
-The AppRun executable sets some environment variables like `PATH` and
-`DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
-executes `python3 path/to/copy/of/spack/bin/spack [args]`.
-
-When the command is done running, the runtime unmounts the squashfs file again.
 
 ## Differences from AppImage runtime
 - it uses `zstd` for good compression;

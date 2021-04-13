@@ -24,6 +24,8 @@ spack:
       variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
     openssl:
       variants: ~systemcerts
+    berkeley-db:
+      variants: ~cxx ~stl
   view: ./view
   config:
     install_tree:
@@ -34,7 +36,6 @@ spack:
         fflags: -static-libstdc++ -static-libgcc -fPIC
         cflags: -static-libstdc++ -static-libgcc -fPIC
         cxxflags: -static-libstdc++ -static-libgcc -fPIC
-        ldflags:
       environment: {}
       modules: []
       target: x86_64

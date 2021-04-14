@@ -46,7 +46,7 @@ $ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
 - OpenSUSE 15+
 - Arch Linux
 - Gentoo
-- Windows Subsystem for Linux with any of the above distro's.
+- Windows Subsystem for Linux 2 with any of the above distro's.
 
 The system dependencies are glibc 2.23+ and FUSE 2. If your system supports
 rootless containers it likely has FUSE installed already! We can't statically

@@ -5,7 +5,7 @@ spack:
   - clingo-bootstrap@spack
   - curl
   - file
-  - git
+  - git ~perl
   - gmake
   - gzip
   - patch

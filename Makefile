@@ -53,7 +53,6 @@ bootstrap: docker env-tools/make_relative_env env-tools/set_some_variables boots
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -w /bootstrap-spack $(IMAGE_NAME) /env-tools/make_relative_env . view install
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -w /bootstrap-spack $(IMAGE_NAME) /env-tools/set_some_variables . view/bin/perl
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
 
 # Download the latest version of spack as a tarball from GitHub

@@ -56,5 +56,6 @@ RUN --mount=type=bind,source=patches,target=/patches \
     git apply /patches/curl.patch \
               /patches/gettext.patch \
               /patches/hack-wrapper.patch \
-              /patches/tar.patch
+              /patches/tar.patch \
+              /patches/git.patch
 

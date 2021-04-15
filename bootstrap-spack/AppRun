@@ -23,7 +23,6 @@ export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
 export GIT_TEMPLATE_DIR="$HERE/view/share/git-core/templates/"
 export MAGIC="$HERE/view/share/misc/magic.mgc"
 export TERMINFO="$HERE/view/share/terminfo"
-export PERL5LIB="$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/site_perl/5.32.1:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/5.32.1/x86_64-linux-thread-multi:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/5.32.1:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/perl5:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/site_perl/5.32.1/x86_64-linux-thread-multi"
 
 $HERE/view/bin/python3 $HERE/spack/bin/spack $@
 

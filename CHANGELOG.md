@@ -1,3 +1,6 @@
+v1.0.5
+- Just drop perl as a dependency entirely
+
 v1.0.4
 - Generate PERL5LIB paths
 

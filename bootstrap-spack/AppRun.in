@@ -23,8 +23,7 @@ export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
 export GIT_TEMPLATE_DIR="$HERE/view/share/git-core/templates/"
 export MAGIC="$HERE/view/share/misc/magic.mgc"
 export TERMINFO="$HERE/view/share/terminfo"
-# TODO: PERLLIB
+export PERL5LIB="{{PERL5LIB}}"
 
 $HERE/view/bin/python3 $HERE/spack/bin/spack $@
 
-#$@

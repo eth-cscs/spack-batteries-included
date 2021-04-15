@@ -1,0 +1,64 @@
+From 8e58932de2cf2ccb14e8112d42bfd484e89f26e5 Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Thu, 15 Apr 2021 12:29:58 +0200
+Subject: [PATCH] Enable git without perl
+
+---
+ var/spack/repos/builtin/packages/git/package.py | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/var/spack/repos/builtin/packages/git/package.py b/var/spack/repos/builtin/packages/git/package.py
+index dc58e6df3201..63adf1973b05 100644
+--- a/var/spack/repos/builtin/packages/git/package.py
++++ b/var/spack/repos/builtin/packages/git/package.py
+@@ -218,6 +218,8 @@ class Git(AutotoolsPackage):
+             description='Gitk: provide Tcl/Tk in the run environment')
+     variant('svn', default=False,
+             description='Provide SVN Perl dependency in run environment')
++    variant('perl', default=True,
++            description='Do not use Perl scripts or libraries at all')
+ 
+     depends_on('curl')
+     depends_on('expat')
+@@ -227,7 +229,7 @@ class Git(AutotoolsPackage):
+     depends_on('openssl')
+     depends_on('pcre', when='@:2.13')
+     depends_on('pcre2', when='@2.14:')
+-    depends_on('perl')
++    depends_on('perl', when='+perl')
+     depends_on('zlib')
+     depends_on('openssh', type='run')
+ 
+@@ -238,6 +240,8 @@ class Git(AutotoolsPackage):
+     depends_on('tk',       type=('build', 'link'), when='+tcltk')
+     depends_on('perl-alien-svn', type='run', when='+svn')
+ 
++    conflicts('+svn', when='~perl')
++
+     @classmethod
+     def determine_version(cls, exe):
+         output = Executable(exe)('--version', output=str, error=str)
+@@ -279,6 +283,9 @@ def setup_build_environment(self, env):
+             env.append_flags('CFLAGS', '-I{0}'.format(
+                 self.spec['gettext'].prefix.include))
+ 
++        if '~perl' in self.spec:
++            env.append_flags('NO_PERL', '1')
++
+     def configure_args(self):
+         spec = self.spec
+ 
+@@ -287,10 +294,12 @@ def configure_args(self):
+             '--with-expat={0}'.format(spec['expat'].prefix),
+             '--with-iconv={0}'.format(spec['iconv'].prefix),
+             '--with-openssl={0}'.format(spec['openssl'].prefix),
+-            '--with-perl={0}'.format(spec['perl'].command.path),
+             '--with-zlib={0}'.format(spec['zlib'].prefix),
+         ]
+ 
++        if '+perl' in self.spec:
++            configure_args.append('--with-perl={0}'.format(spec['perl'].command.path))
++
+         if '^pcre' in self.spec:
+             configure_args.append('--with-libpcre={0}'.format(
+                 spec['pcre'].prefix))

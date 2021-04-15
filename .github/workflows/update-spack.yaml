@@ -15,8 +15,8 @@ jobs:
       - name: Create new spack.x
         run: |
           # Download the latest stable spack.x release and the latest runtime.x
-          curl -Ls -o spack.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.3/spack.x
-          curl -Ls -o runtime.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.3/runtime.x
+          curl -Ls -o spack.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.4/spack.x
+          curl -Ls -o runtime.x https://github.com/haampie/spack-batteries-included/releases/download/v1.0.4/runtime.x
           chmod +x spack.x runtime.x
 
           # Get the SHA of the latest spack release

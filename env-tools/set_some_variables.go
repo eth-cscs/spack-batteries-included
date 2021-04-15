@@ -91,14 +91,26 @@ func main() {
 
     // Parse the include paths
     paths := strings.Fields(out.String())
-    PERL5LIB := ""
+
+    perl_paths := make(map[string]bool)
+
     for _, path := range paths {
         // make relative
         path = filepath.Clean(path)
         rel, err := filepath.Rel(root, path)
         check(err)
-        PERL5LIB += filepath.Join("$HERE", rel) + ":"
+        perl_paths[rel] = true
+
     }
+
+    collect_paths := make([]string, 0, len(perl_paths))
+    for path := range perl_paths {
+        collect_paths = append(collect_paths, filepath.Join("$HERE", path))
+    }
+
+    PERL5LIB := strings.Join(collect_paths, ":")
+
+    fmt.Printf("Setting PERL5LIB to %s\n", PERL5LIB)
 
     // Open AppRun.in and replace {{PERL5PATH}} with the paths we got.
     read, err := ioutil.ReadFile(apprun_in_path)

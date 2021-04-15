@@ -1,0 +1,29 @@
+#!/bin/sh
+
+SELF=$(readlink -f "$0")
+HERE=${SELF%/*}
+
+# ugh, this is so annoying
+unset SPACK_LD_LIBRARY_PATH
+
+if [ -z ${SSL_CERT_DIR+x} ]; then
+    export SSL_CERT_DIR="/etc/ssl/certs:/etc/pki/tls/certs:/usr/share/ssl/certs:/usr/local/share/certs:/usr/local/etc/ssl"
+fi
+
+if [ -z ${GIT_SSL_CAPATH+x} ]; then
+    export GIT_SSL_CAPATH="/etc/ssl/certs:/etc/pki/tls/certs:/usr/share/ssl/certs:/usr/local/share/certs:/usr/local/etc/ssl"
+fi
+
+# make our binaries and libs important
+export PATH="$HERE/view/bin/:$HERE/view/sbin/:$PATH:$HERE/spack/bin"
+export LD_LIBRARY_PATH="$HERE/view/lib/:$HERE/view/lib64/:$LD_LIBRARY_PATH"
+export PYTHONPATH="$HERE/view/lib/python3.8/site-packages:$PYTHONPATH"
+export SPACK_ROOT="$HERE/spack"
+export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
+export GIT_TEMPLATE_DIR="$HERE/view/share/git-core/templates/"
+export MAGIC="$HERE/view/share/misc/magic.mgc"
+export TERMINFO="$HERE/view/share/terminfo"
+export PERL5LIB="$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/site_perl/5.32.1:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/5.32.1/x86_64-linux-thread-multi:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/5.32.1:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/perl5:$HERE/install/linux-ubuntu16.04-x86_64/gcc-9.3.0/perl-5.32.1-j4kahdtxzbzds4f44tsqtz5lzm3iztck/lib/site_perl/5.32.1/x86_64-linux-thread-multi"
+
+$HERE/view/bin/python3 $HERE/spack/bin/spack $@
+

@@ -1,3 +1,6 @@
+v1.0.4
+- Generate PERL5LIB paths
+
 v1.0.3
 - Generate `__pycache__` before packaging.
 - Remove `ld` from binutils, which was included by accident

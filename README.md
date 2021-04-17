@@ -8,7 +8,7 @@ This repo offers a single file executable for Spack:
 
 ```console
 $ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.x
-$ ./spack.x --version
+$ ./spack.x install zlib
 ```
 
 ## How does it work?

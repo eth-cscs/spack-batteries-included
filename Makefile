@@ -73,5 +73,8 @@ clean:
 clean-bootstrap:
 	rm -rf bootstrap-spack/install bootstrap-spack/.spack-env bootstrap-spack/view bootstrap-spack/spack.lock
 
+clean-runtime:
+	rm -rf appimage-runtime/runtime.o appimage-runtime/runtime appimage-runtime/spack.lock appimage-runtime/install appimage-runtime/.spack-env appimage-runtime/view
+
 clean-docker:
 	$(DOCKER) rmi $(IMAGE_NAME)

@@ -39,18 +39,18 @@ $ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
 
 ## Supported platforms
 
-- CentOS 8+
-- Ubuntu 16.04+
-- Debian 9+
-- Fedora 30+
-- OpenSUSE 15+
+- CentOS 7 and above
+- Ubuntu 14.04 and above
+- Debian 8 and above
+- Fedora 20 and above
+- OpenSUSE 13 and above
 - Arch Linux
 - Gentoo
 - Windows Subsystem for Linux 2 with any of the above distro's.
 
-The system dependencies are glibc 2.23+ and FUSE 2. If your system supports
-rootless containers it likely has FUSE installed already! We can't statically
-link libfuse because it [calls a setuid executable with a hard-coded path](https://github.com/libfuse/libfuse/blob/f4eaff6af0be41f48368213bd72161c2c092a50f/lib/mount.c#L117-L121).
+The system dependencies are glibc 2.17 and above and FUSE 2. If your system
+supports rootless containers it likely has FUSE installed already! We can't
+statically link libfuse because it [calls a setuid executable with a hard-coded path](https://github.com/libfuse/libfuse/blob/f4eaff6af0be41f48368213bd72161c2c092a50f/lib/mount.c#L117-L121).
 
 Note: libfuse3 is supported too, but I have to polish the build script a bit.
 

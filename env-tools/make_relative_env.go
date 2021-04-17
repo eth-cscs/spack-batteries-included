@@ -202,10 +202,14 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
 
                 if !filepath.IsAbs(full_rpath) {
                     // Warn about relative rpaths...
-                    log.Printf("\nWarning: %s has a relative rpath!\n - rpath: %s\n", PrettyPath(root, file), full_rpath)
+                    log.Printf("\nWarning: %s has a relative rpath, skipping!\n - rpath: %s\n", PrettyPath(root, file), full_rpath)
+                    changed = true
+                    continue
                 } else if !HasFilePathPrefix(full_rpath, root) {
                     // Warn about rpaths pointing out of the self-contained folder.
-                    log.Printf("\nWarning: %s has an rpath pointing outside the root directory!\n - root: %s\n - rpath: %s\n", PrettyPath(root, file), root, full_rpath)
+                    log.Printf("\nWarning: %s has an rpath pointing outside the root directory! Skipping\n - root: %s\n - rpath: %s\n", PrettyPath(root, file), root, full_rpath)
+                    changed = true
+                    continue
                 }
 
                 // Make rpath relative to elf directory
@@ -226,17 +230,12 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
         final_rpath := strings.Join(new_rpaths, ":")
 
         // Don't invoke patchelf unnecessarily
-        if !changed { continue }
-
-        // Work around issues in patchelf... first delete the rpath/runpath, then
-        // set force rpath.
-        log.Printf("Rewriting rpath of %s to %s\n", PrettyPath(root, file), final_rpath)
-        remove_rpath := exec.Command("patchelf", "--remove-rpath", file)
-        err = remove_rpath.Run()
-        check(err)
-        set_rpath := exec.Command("patchelf", "--force-rpath", "--set-rpath", final_rpath, file)
-        err = set_rpath.Run()
-        check(err)
+        if changed {
+            set_rpath := exec.Command("patchelf", "--force-rpath", "--set-rpath", final_rpath, file)
+            set_rpath.Stderr = os.Stderr
+            err = set_rpath.Run()
+            if err != nil { log.Printf("Issues rewriting the rpath") }
+        }
     }
 
     fmt.Println("Linked system libraries found:")
@@ -268,10 +267,10 @@ func main() {
     }
 
     // First check if patchelf is avaiable...
-    path, err := exec.LookPath("patchelf")
+    patchelf_path, err := exec.LookPath("patchelf")
     check(err)
 
-    fmt.Printf("Found patchelf: %s\n", path)
+    fmt.Printf("Found patchelf: %s\n", patchelf_path)
     patchelf_version := exec.Command("patchelf", "--version")
     patchelf_version.Stdout = os.Stdout
     err = patchelf_version.Run()

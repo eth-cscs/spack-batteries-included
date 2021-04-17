@@ -1,60 +1,64 @@
 spack:
   specs:
-  - squashfuse@master~lz4~lzo+min_size~shared~xz~zlib
-  - zstd~shared build_type=MinSizeRel
-  - squashfs ~gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
+  - patchelf target=x86_64
+  - squashfuse@master~lz4~lzo+min_size~shared~xz~zlib target=x86_64
+  - zstd~shared~programs build_type=MinSizeRel target=x86_64
+  - squashfs ~gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd target=x86_64
   concretization: together
   view: ./view
   config:
     install_tree:
       root: ./install
-  compilers:
+  'compilers:':
   - compiler:
-      environment: {}
-      target: x86_64
-      spec: gcc@9.3.0
-      extra_rpaths: []
+      spec: gcc@9.3.1
       paths:
-        cxx: /usr/bin/g++-9
-        f77: /usr/bin/gfortran-9
-        cc: /usr/bin/gcc-9
-        fc: /usr/bin/gfortran-9
-      flags: {}
-      operating_system: ubuntu16.04
+        cc: /opt/rh/devtoolset-9/root/usr/bin/gcc
+        cxx: /opt/rh/devtoolset-9/root/usr/bin/g++
+        f77: /opt/rh/devtoolset-9/root/usr/bin/gfortran
+        fc: /opt/rh/devtoolset-9/root/usr/bin/gfortran
+      flags:
+        fflags: -static-libstdc++ -static-libgcc -fPIC
+        cflags: -static-libstdc++ -static-libgcc -fPIC
+        cxxflags: -static-libstdc++ -static-libgcc -fPIC
+      operating_system: centos7
+      target: x86_64
       modules: []
+      environment: {}
+      extra_rpaths: []
   packages:
+    libfuse:
+      externals:
+      - spec: libfuse@2.9.2
+        prefix: /usr
+      buildable: false
     pkg-config:
       externals:
-      - spec: pkg-config@0.29.1
-        prefix: /usr
+      - spec: pkg-config@0.27.1
+        prefix: /
       buildable: false
     cmake:
       externals:
-      - spec: cmake@3.20.0
+      - spec: cmake@3.20.1
         prefix: /usr/local
-      buildable: false
-    automake:
-      externals:
-      - spec: automake@1.15
-        prefix: /usr
-      buildable: false
-    libfuse:
-      externals:
-      - spec: libfuse@2.9.4
-        prefix: /
-      buildable: false
-    libtool:
-      externals:
-      - spec: libtool@2.4.6
-        prefix: /usr
-      buildable: false
-    m4:
-      externals:
-      - spec: m4@1.4.17
-        prefix: /usr
       buildable: false
     autoconf:
       externals:
       - spec: autoconf@2.69
+        prefix: /
+      buildable: false
+    automake:
+      externals:
+      - spec: automake@1.13.4
+        prefix: /
+      buildable: false
+    libtool:
+      externals:
+      - spec: libtool@2.4.2
+        prefix: /
+      buildable: false
+    m4:
+      externals:
+      - spec: m4@1.4.16
         prefix: /usr
       buildable: false

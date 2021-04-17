@@ -31,20 +31,20 @@ spack:
   config:
     install_tree:
       root: ./install
-  compilers:
+  'compilers:':
   - compiler:
+      spec: gcc@9.3.1
+      paths:
+        cc: /opt/rh/devtoolset-9/root/usr/bin/gcc
+        cxx: /opt/rh/devtoolset-9/root/usr/bin/g++
+        f77: /opt/rh/devtoolset-9/root/usr/bin/gfortran
+        fc: /opt/rh/devtoolset-9/root/usr/bin/gfortran
       flags:
         fflags: -static-libstdc++ -static-libgcc -fPIC
         cflags: -static-libstdc++ -static-libgcc -fPIC
         cxxflags: -static-libstdc++ -static-libgcc -fPIC
-      environment: {}
-      modules: []
+      operating_system: centos7
       target: x86_64
-      spec: gcc@9.3.0
-      operating_system: ubuntu16.04
-      paths:
-        cxx: /usr/bin/g++-9
-        cc: /usr/bin/gcc-9
-        f77: /usr/bin/gfortran-9
-        fc: /usr/bin/gfortran-9
+      modules: []
+      environment: {}
       extra_rpaths: []

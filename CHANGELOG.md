@@ -2,6 +2,7 @@ v1.2.1
 - Do not ship the binutils assembler anymore, since it maybe result in incompatibilities when combined with system linker
 
 v1.2.0
+- Clingo concretizer is now enabled by default
 - Use glibc 2.17 instead of 2.23 by switching the Docker base image to Centos 7
 - Add a patched version of patchelf as it was broken
 - Make the binary a bit smaller by deleting docs, locales, etc.

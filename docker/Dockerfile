@@ -42,5 +42,6 @@ RUN --mount=type=bind,source=patches,target=/patches \
               /patches/hack-wrapper.patch \
               /patches/tar.patch \
               /patches/ccache.patch \
-              /patches/patchelf.patch
+              /patches/patchelf.patch \
+              /patches/binutils.patch
 

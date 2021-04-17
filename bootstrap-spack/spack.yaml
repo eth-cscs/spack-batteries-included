@@ -1,6 +1,6 @@
 spack:
   specs:
-  - binutils ~gold ~ld ~nls
+  - binutils ~gold ~ld ~nls ~gas
   - bzip2
   - ccache
   - clingo-bootstrap@spack

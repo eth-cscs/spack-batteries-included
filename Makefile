@@ -10,7 +10,7 @@ all: spack.develop.x
 spack.develop.x: runtime bootstrap-install-spack-develop spack.x
 
 # Build spack.x but don't download a new version of spack itself from github
-spack.x: runtime bootstrap spack.x-quick
+spack.x: runtime.x bootstrap spack.x-quick
 
 # Just rebuild spack.x file without rebuilding the runtime / bootstrap bits.
 spack.x-quick: squashfs
@@ -47,6 +47,11 @@ runtime: docker appimage-runtime/spack.yaml
 runtime.x: runtime
 	rm -f output/runtime.squashfs
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime \
+					-v $(CURDIR)/env-tools:/env-tools \
+					-v $(CURDIR)/appimage-runtime:/appimage-runtime \
+					-w /appimage-runtime $(IMAGE_NAME) \
+					/bin/bash -c 'export PATH="/appimage-runtime/view/bin/:$$PATH"; /env-tools/make_relative_env . view install'
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime \
 					-v $(CURDIR)/output:/output \
 					-w /output $(IMAGE_NAME) \
 					/appimage-runtime/view/bin/mksquashfs \
@@ -61,7 +66,6 @@ bootstrap: docker env-tools/make_relative_env env-tools/prune bootstrap-spack/sp
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . gc -y
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
-	# we have strip built as part of bootstrap but who strips strip? it panics.
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /bootstrap-spack $(IMAGE_NAME) /bin/bash -c 'export PATH="/appimage-runtime/view/bin/:$$PATH"; /env-tools/make_relative_env . view install'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /bootstrap-spack $(IMAGE_NAME) /env-tools/prune . view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall spack/ 1> /dev/null || true

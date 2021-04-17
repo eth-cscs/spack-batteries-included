@@ -1,4 +1,5 @@
 config:
+  concretizer: clingo
   test_stage: $tempdir/$user/test_stage
   source_cache: $tempdir/$user/source_cache
   misc_cache: $tempdir/$user/misc_cache

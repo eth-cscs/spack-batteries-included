@@ -44,6 +44,16 @@ runtime: docker appimage-runtime/spack.yaml
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime $(IMAGE_NAME) make clean
 	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /appimage-runtime -e C_INCLUDE_PATH=/appimage-runtime/view/include -e LIBRARY_PATH=/appimage-runtime/view/lib $(IMAGE_NAME) make CC=/opt/rh/devtoolset-9/root/usr/bin/gcc
 
+runtime.x: runtime
+	rm -f output/runtime.squashfs
+	$(DOCKER) run --rm -v $(CURDIR)/appimage-runtime:/appimage-runtime \
+					-v $(CURDIR)/output:/output \
+					-w /output $(IMAGE_NAME) \
+					/appimage-runtime/view/bin/mksquashfs \
+					/appimage-runtime runtime.squashfs
+	cat appimage-runtime/runtime output/runtime.squashfs > output/runtime.x
+	chmod +x output/runtime.x
+
 # Install spack's own dependencies using the docker image, remove its build dependencies
 # and remove static libaries too. Then try to make all paths relative using the Go script.
 bootstrap: docker env-tools/make_relative_env env-tools/prune bootstrap-spack/spack.yaml runtime

@@ -56,24 +56,35 @@ jobs:
 
           # Overwrite spack.x
           cat runtime_x/squashfs-root/runtime spack.squashfs > spack.x
-      - name: Upload spack.x
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: spack.x
-          asset_name: spack.x
-          tag: develop
-          overwrite: true
-          body: "Automatically updating release"
-      - name: Upload spack.squashfs
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: spack.squashfs
-          asset_name: spack.squashfs
-          tag: develop
-          overwrite: true
-          body: "Automatically updating release"
+      - name: Upload release assets
+        run: |
+          curl -fsS \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/haampie/spack-batteries-included/releases > release_info.json
+
+          for name in spack.x spack.squashfs
+          do
+            # Get the release url
+            release_url="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .url')"
+
+            # Get the asset url
+            asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"
+
+            # Delete the asset
+            if [ -n "$asset_url" ]; then
+              curl -fsS \
+                -X DELETE \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "$asset_url"
+            fi
+
+            # Upload a new one.
+            curl -fsS \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              --data-binary @$name \
+              "$release_url/assets?name=$name"
+          done
 
 
 

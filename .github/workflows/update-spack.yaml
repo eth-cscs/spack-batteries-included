@@ -12,7 +12,7 @@ jobs:
       - name: Create new spack.x
         run: |
           # Get the SHA of the latest spack release
-          export SPACK_SHA=$(git ls-remote https://github.com/spack/spack.git | grep refs/heads/develop | head -n1 | awk '{ print $1}')
+          SPACK_SHA=$(git ls-remote https://github.com/spack/spack.git | grep refs/heads/develop | head -n1 | awk '{ print $1}')
           echo "Using spack SHA $SPACK_SHA"
 
           # Download the latest stable spack.x release and the latest runtime.x
@@ -34,31 +34,36 @@ jobs:
           # Extract them.
           echo "Extracting spack.x and runtime.x $BASE_VERSION"
           mkdir spack_x runtime_x
-          cd spack_x
-          ../spack.x --appimage-extract 1> /dev/null
-          cd ..
-          cd runtime_x
-          ../runtime.x --appimage-extract 1> /dev/null
-          cd ..
+          
+          (
+            cd spack_x || exit
+            ../spack.x --appimage-extract 1> /dev/null
+          )
+          (
+            cd runtime_x || exit
+            ../runtime.x --appimage-extract 1> /dev/null
+          )
 
           # Replace the spack version
           echo "Download Spack $SPACK_SHA"
           rm -rf spack_x/squashfs-root/spack
           mkdir spack_x/squashfs-root/spack
           curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_x/squashfs-root/spack
-          echo $SPACK_SHA > spack_x/squashfs-root/spack_sha
+          echo "$SPACK_SHA" > spack_x/squashfs-root/spack_sha
 
           # Apply the patch that allows you to drop specifying --log-file
-          cd spack_x/squashfs-root/spack
-          patch -p1 $GITHUB_WORKSPACE/20158.patch
-          cp $GITHUB_WORKSPACE/config.yaml etc/spack/
-          cd ../../..
+          (
+            cd spack_x/squashfs-root/spack || exit
+            patch -p1 "$GITHUB_WORKSPACE/20158.patch"
+            cp "$GITHUB_WORKSPACE/config.yaml" etc/spack/
+          )
 
           # Generate __pycache__ files
-          cd spack_x/squashfs-root
-          find . -iname "__pycache__" | xargs rm -rf
-          ./AppRun python -m compileall spack/ 1> /dev/null || true
-          cd ../..
+          (
+            cd spack_x/squashfs-root || exit
+            find . -iname "__pycache__" -print0 | xargs rm -rf
+            ./AppRun python -m compileall spack/ 1> /dev/null || true
+          )
 
           # Create a new squashfs file
           ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs
@@ -71,11 +76,18 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/haampie/spack-batteries-included/releases > release_info.json
 
+          # Get the release url
+          release_id="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .id')"
+
+          if [ -z "$release_id" ]; then
+            echo "Couldn't get release id"
+            exit 1
+          fi
+
+          echo "Using release id $release_id"
+
           for name in spack.x spack.squashfs
           do
-            # Get the release url
-            release_url="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .url')"
-
             # Get the asset url
             asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"
 
@@ -90,11 +102,13 @@ jobs:
             fi
 
             # Upload a new one.
-            echo "Uploading new $name"
+            echo "Uploading $name"
             curl -fsS \
+              -X POST \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
               --data-binary @$name \
-              "$release_url/assets?name=$name"
+              "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
           done
 
 

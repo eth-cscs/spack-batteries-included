@@ -20,16 +20,16 @@ jobs:
           echo "Downloading spack.x and runtime.x from version $BASE_VERSION"
           curl -LfSs -o spack.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack.x"
           curl -LfSs -o runtime.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime.x"
-          echo "5477933a5225576ea364f9510a6981dfce36cda9c94125691a78df93c1011d65 spack.x" | sha256sum --check --status
-          echo "6315ec43508550cb1896ef2da5d0bec2274715aa13ca9fad73da23dd53c65772 runtime.x" | sha256sum --check --status
+          echo "5477933a5225576ea364f9510a6981dfce36cda9c94125691a78df93c1011d65 spack.x" | sha256sum --check
+          echo "6315ec43508550cb1896ef2da5d0bec2274715aa13ca9fad73da23dd53c65772 runtime.x" | sha256sum --check
           chmod +x spack.x runtime.x
 
           # Download spack patches
           echo "Downloading patches / files"
           curl -LSsf "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/bootstrap-spack/20158.patch" > 20158.patch
-          curl -LSsf "https://github.com/haampie/spack-batteries-included/blob/master/bootstrap-spack/config.yaml" > config.yaml
-          echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch" | sha256sum --check --status
-          echo "6486badd717f32b8fd9bc21ecdf71ce9ca7be2dd0a2be147613840ab116f3b6f config.yaml" | sha256sum --check --status
+          curl -LSsf "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/bootstrap-spack/config.yaml" > config.yaml
+          echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch" | sha256sum --check
+          echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml" | sha256sum --check
 
           # Extract them.
           echo "Extracting spack.x and runtime.x $BASE_VERSION"

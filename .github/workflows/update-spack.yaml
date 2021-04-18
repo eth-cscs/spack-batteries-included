@@ -72,6 +72,7 @@ jobs:
 
             # Delete the asset
             if [ -n "$asset_url" ]; then
+              echo "Deleting remote $name"
               curl -fsS \
                 -X DELETE \
                 -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -80,6 +81,7 @@ jobs:
             fi
 
             # Upload a new one.
+            echo "Uploading new $name"
             curl -fsS \
               -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               --data-binary @$name \

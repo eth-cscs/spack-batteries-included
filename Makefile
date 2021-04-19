@@ -67,7 +67,16 @@ bootstrap: docker env-tools/make_relative_env env-tools/prune bootstrap-spack/sp
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /bootstrap-spack $(IMAGE_NAME) /bin/bash -c 'export PATH="/appimage-runtime/view/bin/:$$PATH"; /env-tools/make_relative_env . view install'
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /bootstrap-spack $(IMAGE_NAME) /env-tools/prune . view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -v $(CURDIR)/env-tools:/env-tools -v $(CURDIR)/appimage-runtime:/appimage-runtime -w /bootstrap-spack $(IMAGE_NAME) \
+		/env-tools/prune . \
+			view/share/aclocal \
+			view/share/doc \
+			view/share/info \
+			view/share/locale \
+			view/share/man \
+			view/include \
+			view/share/gettext/archive.dir.tar.gz \
+			view/lib/python3.8/test
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall spack/ 1> /dev/null || true
 
 # Download the latest version of spack as a tarball from GitHub

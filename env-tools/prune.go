@@ -150,10 +150,10 @@ func main() {
             return
         }
 
-        folder_info, err := os.Stat(folder)
+        _, err := os.Stat(folder)
 
-        if err != nil || !folder_info.IsDir() {
-            log.Printf("%s is not a directory", folder)
+        if err != nil {
+            log.Printf("%s is not a file", folder)
             os.Exit(1)
         }
 

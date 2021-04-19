@@ -86,7 +86,7 @@ bootstrap: docker env-tools/make_relative_env env-tools/prune bootstrap-spack/sp
 			view/include \
 			view/share/gettext/archive.dir.tar.gz \
 			view/lib/python3.8/test
-	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall spack/ 1> /dev/null || true
+	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall spack/ install/ 1> /dev/null || true
 
 # Download the latest version of spack as a tarball from GitHub
 # Notice, we apply the patch from https://github.com/spack/spack/pull/20158/

@@ -1,6 +1,7 @@
 v1.2.2
 - Update the deployment script not to use 3rd-party github actions
 - Make the final binary a bit smaller
+- Add some caching for local builds of bootstrap binaries in spack.x
 
 v1.2.1
 - Do not ship the binutils assembler anymore, since it maybe result in incompatibilities when combined with system linker

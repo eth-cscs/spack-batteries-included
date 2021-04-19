@@ -28,7 +28,7 @@ squashfs: docker
 					-v $(CURDIR)/output:/output \
 					-w /output $(IMAGE_NAME) \
 					/appimage-runtime/view/bin/mksquashfs \
-					/bootstrap-spack spack.squashfs
+					/bootstrap-spack spack.squashfs -all-root
 
 
 # A Go tool that allows you to rewrite symlinks, rpaths and runpaths
@@ -55,7 +55,7 @@ runtime.x: runtime
 					-v $(CURDIR)/output:/output \
 					-w /output $(IMAGE_NAME) \
 					/appimage-runtime/view/bin/mksquashfs \
-					/appimage-runtime runtime.squashfs
+					/appimage-runtime runtime.squashfs -all-root
 	cat appimage-runtime/runtime output/runtime.squashfs > output/runtime.x
 	chmod +x output/runtime.x
 

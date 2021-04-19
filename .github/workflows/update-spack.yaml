@@ -54,7 +54,7 @@ jobs:
           # Apply the patch that allows you to drop specifying --log-file
           (
             cd spack_x/squashfs-root/spack || exit
-            patch -p1 "$GITHUB_WORKSPACE/20158.patch"
+            patch -p1 < "$GITHUB_WORKSPACE/20158.patch"
             cp "$GITHUB_WORKSPACE/config.yaml" etc/spack/
           )
 

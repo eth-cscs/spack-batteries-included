@@ -6,7 +6,7 @@ spack:
   - clingo-bootstrap@spack
   - curl
   - file
-  - git ~perl
+  - git ~perl ~nls ~man
   - gmake
   - gzip
   - patch
@@ -27,8 +27,15 @@ spack:
       variants: ~systemcerts
     berkeley-db:
       variants: ~cxx ~stl
+    cmake:
+      externals:
+      - spec: cmake@3.20.1
+        prefix: /usr/local
+      buildable: false
   view: ./view
   config:
+    ccache: true
+    source_cache: /source_cache
     install_tree:
       root: ./install
   'compilers:':

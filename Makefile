@@ -62,7 +62,16 @@ runtime.x: runtime
 # Install spack's own dependencies using the docker image, remove its build dependencies
 # and remove static libaries too. Then try to make all paths relative using the Go script.
 bootstrap: docker env-tools/make_relative_env env-tools/prune bootstrap-spack/spack.yaml runtime
-	$(DOCKER) run --rm -e SSL_CERT_FILE="/etc/ssl/certs/ca-bundle.crt" -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . install --fail-fast -v
+	$(DOCKER) run --rm \
+		-e SSL_CERT_FILE="/etc/ssl/certs/ca-bundle.crt" \
+		-e CCACHE_DIR=/ccache \
+		-v $(CURDIR)/appimage-runtime:/appimage-runtime \
+		-v $(CURDIR)/bootstrap-spack:/bootstrap-spack \
+		-v $(CURDIR)/ccache:/ccache \
+		-v $(CURDIR)/source_cache:/source_cache \
+		-w /bootstrap-spack \
+		$(IMAGE_NAME) \
+		/bin/bash -c 'export PATH="/appimage-runtime/view/bin/:$$PATH"; spack --color=always -e . install --fail-fast -v'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) spack --color=always -e . gc -y
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "*.a" | xargs rm -f'
 	$(DOCKER) run --rm -v $(CURDIR)/bootstrap-spack:/bootstrap-spack -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'

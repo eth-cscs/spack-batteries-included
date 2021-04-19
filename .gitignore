@@ -14,3 +14,5 @@ bootstrap-spack/spack/*
 bootstrap-spack/spack/.*
 spack-cc-*
 *.swp
+ccache/*
+source_cache/*

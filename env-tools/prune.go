@@ -22,7 +22,6 @@ func ioReader(file string) io.ReaderAt {
 }
 
 
-
 // HasFilePathPrefix reports whether the filesystem path s
 // begins with the elements in prefix.
 func HasFilePathPrefix(s, prefix string) bool {
@@ -71,11 +70,12 @@ func Prune(root string, directories []string) {
 
         // Try to get some file details
         info, err := os.Lstat(file)
-        check(err)
+
+        // Let's ignore missing files.
+        if err != nil { continue }
 
         // Make symlinks relative
         if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-            // log.Printf("Checking symbolic link %s\n", PrettyPath(root, file))
             original_symlink, err := os.Readlink(file)
 
             if err == nil {
@@ -128,42 +128,38 @@ func main() {
     }
 
     // If more args are passed, consider those paths
-    folders := []string{root}
+    files := []string{}
+    files_in := os.Args[2:]
 
-    if len(os.Args) > 2 {
-        folders = os.Args[2:]
-    }
-
-    for idx, folder := range folders {
-
+    for _, file := range files_in {
         // Make relative
-        if !filepath.IsAbs(folder) {
-            folder = filepath.Join(root, folder)
+        if !filepath.IsAbs(file) {
+            file = filepath.Join(root, file)
         }
 
-        folder = filepath.Clean(folder)
+        file = filepath.Clean(file)
 
         // Check if things are included in one another
-        if !HasFilePathPrefix(folder, root) {
-            log.Printf("%s not contained in root folder %s\n", folder, root)
+        if !HasFilePathPrefix(file, root) {
+            log.Printf("%s not contained in root folder %s\n", file, root)
             os.Exit(1)
             return
         }
 
-        _, err := os.Stat(folder)
+        _, err := os.Stat(file)
 
-        if err != nil {
-            log.Printf("%s is not a file", folder)
-            os.Exit(1)
-        }
+        if err != nil { continue }
 
-        folders[idx] = folder
+        files = append(files, file)
     }
 
-    fmt.Printf("Removing the following from `%s` including what their symlinks point to:", root)
-    for _, folder := range folders {
-        fmt.Printf(" - %s\n", folder)
+    // Nothing to do?
+    if len(files) == 0 { return }
+
+    fmt.Printf("Removing the following from `%s` including what their symlinks point to:\n", root)
+    for _, file := range files {
+        fmt.Printf(" - %s\n", file)
     }
 
-    Prune(root, folders)
+    Prune(root, files)
 }

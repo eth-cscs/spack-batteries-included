@@ -1,5 +1,6 @@
 spack:
   specs:
+  - ccache target=x86_64
   - patchelf target=x86_64
   - squashfuse@master~lz4~lzo+min_size~shared~xz~zlib target=x86_64
   - zstd~shared~programs build_type=MinSizeRel target=x86_64

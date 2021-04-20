@@ -1,3 +1,6 @@
+v1.2.3
+- Smaller binaries with some gcc flags
+
 v1.2.2
 - Update the deployment script not to use 3rd-party github actions
 - Make the final binary a bit smaller

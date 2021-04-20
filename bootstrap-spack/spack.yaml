@@ -47,9 +47,13 @@ spack:
         f77: /opt/rh/devtoolset-9/root/usr/bin/gfortran
         fc: /opt/rh/devtoolset-9/root/usr/bin/gfortran
       flags:
-        fflags: -static-libstdc++ -static-libgcc -fPIC
-        cflags: -static-libstdc++ -static-libgcc -fPIC
-        cxxflags: -static-libstdc++ -static-libgcc -fPIC
+        fflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        cflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        cxxflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        ldflags: -Wl,--gc-sections
       operating_system: centos7
       target: x86_64
       modules: []

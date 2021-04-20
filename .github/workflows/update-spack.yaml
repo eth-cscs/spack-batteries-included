@@ -16,7 +16,7 @@ jobs:
           echo "Using spack SHA $SPACK_SHA"
 
           # Download the latest stable spack.x release and the latest runtime.x
-          export BASE_VERSION="v1.2.2"
+          export BASE_VERSION="v1.2.3"
           echo "Downloading spack.x and runtime.x from version $BASE_VERSION"
           curl -LfSs -o spack.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack.x"
           curl -LfSs -o runtime.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime.x"

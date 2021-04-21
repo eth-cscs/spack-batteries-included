@@ -16,12 +16,12 @@ jobs:
           echo "Using spack SHA $SPACK_SHA"
 
           # Download the latest stable spack.x release and the latest runtime.x
-          export BASE_VERSION="v1.2.3"
+          export BASE_VERSION="v1.3.0"
           echo "Downloading spack.x and runtime.x from version $BASE_VERSION"
           curl -LfSs -o spack.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack.x"
           curl -LfSs -o runtime.x "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime.x"
-          echo "905a7839c82a96cdbc8c2f56483e8c205faf12df04db299f3f25b277ea2793ac spack.x" | sha256sum --check
-          echo "984db36d7a51383beb6eb0713dc6948848e4bc021fd0f09db4f0dcf913078e56 runtime.x" | sha256sum --check
+          echo "c91725df1490ce5a20529a6ce381a144320830bf490b194835735b8381da15ea spack.x" | sha256sum --check
+          echo "9a384f4bf255edb920dcac02aeaf8298477363b3ac1eef5c88306c41c3cffd5f runtime.x" | sha256sum --check
           chmod +x spack.x runtime.x
 
           # Download spack patches

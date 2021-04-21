@@ -1,3 +1,6 @@
+v1.3.0
+- Bootstrap GCC 10 with C, C++ and Go support in CentOS 7 to build spack dependencies
+
 v1.2.3
 - Smaller binaries with some gcc flags
 

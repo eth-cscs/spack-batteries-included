@@ -8,19 +8,18 @@ spack:
   concretization: together
   view: ./view
   config:
+    source_cache: /source_cache
     install_tree:
       root: ./install
   'compilers:':
   - compiler:
-      spec: gcc@9.3.1
+      spec: gcc@10.3.0
       paths:
-        cc: /opt/rh/devtoolset-9/root/usr/bin/gcc
-        cxx: /opt/rh/devtoolset-9/root/usr/bin/g++
-        f77: /opt/rh/devtoolset-9/root/usr/bin/gfortran
-        fc: /opt/rh/devtoolset-9/root/usr/bin/gfortran
+        cc: /compiler/view/bin/gcc
+        cxx: /compiler/view/bin/g++
+        f77: null
+        fc: null
       flags:
-        fflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
-          -Wl,--gc-sections
         cflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
           -Wl,--gc-sections
         cxxflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections

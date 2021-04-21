@@ -149,13 +149,8 @@ It's best to install rootless Docker on your system:
 
 https://docs.docker.com/engine/security/rootless/
 
-Optionally you need `curl` (to download the latest spack) and `go` (to build a
-tool for making spack environments relocatable). Since the Go executable is small
-and static, it's actually just included in the git repo, so you likely don't need
-to recompile it.
-
-To build the latest everything from scratch (docker image, appimage runtime,
-spack dependencies), run:
+To build the latest everything from scratch (docker image, gcc with c, cxx and
+go support, appimage runtime, spack dependencies), run:
 
 ```console
 make

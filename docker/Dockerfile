@@ -5,24 +5,26 @@ ENV PATH="$PATH:/opt/spack/bin"
 RUN yum update -y \
  && yum install -y epel-release \
  && yum update -y \
- && yum --enablerepo epel groupinstall -y "Development Tools" \
  && yum --enablerepo epel install -y \
+        autoconf \
+        automake \
+        bison \
+        bzip2 \
+        ca-certificates \
         curl \
-        centos-release-scl \
+        file \
         findutils \
         fuse \
         fuse-devel \
         git \
-        gnupg2 \
-        hostname \
-        iproute \
+        gcc \
+        gcc-c++ \
+        libtool \
         make \
         patch \
         python3 \
-        tcl \
         unzip \
         which \
- && yum install -y devtoolset-9 \
  && rm -rf /var/cache/yum \
  && yum clean all
 
@@ -43,4 +45,3 @@ RUN --mount=type=bind,source=patches,target=/patches \
               /patches/tar.patch \
               /patches/ccache.patch \
               /patches/git.patch
-

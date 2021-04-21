@@ -1,0 +1,54 @@
+spack:
+  specs:
+  - gcc ~bootstrap +strip +binutils languages=c,c++,go ^binutils +gold +ld +plugins
+    +lto +gas ~nls ^zstd ~multithread ~shared
+  concretization: together
+  view: /compiler/view
+  config:
+    source_cache: /source_cache
+    install_tree:
+      root: ./install
+  packages:
+    pkg-config:
+      externals:
+      - spec: pkg-config@0.27.1
+        prefix: /
+      buildable: false
+    cmake:
+      externals:
+      - spec: cmake@3.20.1
+        prefix: /usr/local
+      buildable: false
+    autoconf:
+      externals:
+      - spec: autoconf@2.69
+        prefix: /
+      buildable: false
+    automake:
+      externals:
+      - spec: automake@1.13.4
+        prefix: /
+      buildable: false
+    libtool:
+      externals:
+      - spec: libtool@2.4.2
+        prefix: /usr
+      buildable: false
+    m4:
+      externals:
+      - spec: m4@1.4.16
+        prefix: /usr
+      buildable: false
+  compilers:
+  - compiler:
+      spec: gcc@4.8.5
+      paths:
+        cc: /usr/bin/gcc
+        cxx: /usr/bin/g++
+        f77: /usr/bin/gfortran
+        fc: /usr/bin/gfortran
+      operating_system: centos7
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []

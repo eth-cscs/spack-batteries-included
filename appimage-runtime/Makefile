@@ -1,4 +1,4 @@
-CC            = gcc-9
+CC            = gcc
 CFLAGS        = -std=gnu99 -Wall -Os -D_FILE_OFFSET_BITS=64
 STRIP         = strip
 MAGIC         = echo "8: 414902" | xxd -r -

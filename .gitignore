@@ -20,3 +20,5 @@ spack-cc-*
 *.swp
 ccache/*
 source_cache/*
+env-tools/prune
+env-tools/make_relative_env

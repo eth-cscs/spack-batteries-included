@@ -141,6 +141,16 @@ $ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack
 # ./spack.x --version
 ```
 
+## Running an executable shipped with spack.x directly
+
+If you want to run an executable shipped with `spack.x` directly without instead
+of invoking spack (the default entrypoint), try this:
+
+```console
+$ NO_ENTRYPOINT= ./spack.x which python
+/tmp/.mount_spack.h0zr1h/view/bin//python
+```
+
 --------------------------------------------------------------------------------
 
 ## How do I build spack.x myself?

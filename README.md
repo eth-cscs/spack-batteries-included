@@ -143,7 +143,7 @@ $ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack
 
 ## Running an executable shipped with spack.x directly
 
-If you want to run an executable shipped with `spack.x` directly without instead
+If you want to run an executable shipped with `spack.x` directly instead
 of invoking spack (the default entrypoint), try this:
 
 ```console

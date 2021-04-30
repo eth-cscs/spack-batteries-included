@@ -12,6 +12,7 @@ spack:
   - patch
   - patchelf
   - python ~dbm ~libxml2
+  - squashfs +gzip +zstd ~lz4 ~lzo ~xz default_compression=zstd
   - tar
   - unzip
   - xz

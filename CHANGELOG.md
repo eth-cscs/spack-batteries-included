@@ -1,6 +1,6 @@
 v1.4.0
 - Include `mksquashfs` as an additional tool.
-- Introduce the `NO_ENTRYPOINT` variable which allows you to run `NO_ENTRYPOINT= spack.x [command]` which will effectively run `[command]` will be run directly in the shell instead of as 
+- Introduce the `NO_ENTRYPOINT` variable which allows you to run `NO_ENTRYPOINT= spack.x [command]` which will run `[command]` directly in the shell (after spack.x is mounted, and environment modifications are done)
 
 v1.3.0
 - Bootstrap GCC 10 with C, C++ and Go support in CentOS 7 to build spack dependencies

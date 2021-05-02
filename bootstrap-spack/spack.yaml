@@ -18,10 +18,11 @@ spack:
   - xz
   - zstd ~shared
   concretization: together
+  view: ./view
   packages:
     all:
       target:
-      - x86_64
+      - ${TARGET}
     gettext:
       variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
     openssl:
@@ -33,7 +34,6 @@ spack:
       - spec: cmake@3.20.1
         prefix: /usr/local
       buildable: false
-  view: ./view
   config:
     ccache: true
     source_cache: /source_cache
@@ -54,7 +54,7 @@ spack:
           -Wl,--gc-sections
         ldflags: -Wl,--gc-sections
       operating_system: centos7
-      target: x86_64
+      target: ${TARGET}
       modules: []
       environment: {}
       extra_rpaths: []

@@ -48,7 +48,7 @@ spack:
         f77: /usr/bin/gfortran
         fc: /usr/bin/gfortran
       operating_system: centos7
-      target: x86_64
+      target: ${TARGET}
       modules: []
       environment: {}
       extra_rpaths: []

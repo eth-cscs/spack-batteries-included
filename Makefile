@@ -1,3 +1,4 @@
+export TARGET ?= x86_64
 DOCKER ?= docker
 CURL ?= curl
 IMAGE_NAME ?= spack-old-glibc
@@ -27,7 +28,7 @@ spack.x-quick: squashfs
 
 # Build a docker image with an old version of glibc
 docker: docker/Dockerfile
-	DOCKER_BUILDKIT=1 $(DOCKER) build --progress=plain -t $(IMAGE_NAME) docker/
+	$(DOCKER) build --build-arg TARGET -t $(IMAGE_NAME) docker/
 
 squashfs: docker
 	rm -f output/spack.squashfs

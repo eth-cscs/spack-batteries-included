@@ -1,7 +1,7 @@
 spack:
   specs:
   - gcc ~bootstrap +strip +binutils languages=c,c++,go ^binutils +gold +ld +plugins
-    +lto +gas ~nls ^zstd ~multithread ~shared
+    ~lto +gas ~nls ^zstd ~multithread ~shared
   concretization: together
   view: /compiler/view
   config:

@@ -16,6 +16,7 @@ RUN yum update -y \
         curl \
         file \
         findutils \
+        flex \
         fuse \
         fuse-devel \
         git \

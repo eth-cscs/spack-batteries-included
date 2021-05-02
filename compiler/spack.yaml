@@ -39,16 +39,18 @@ spack:
       - spec: m4@1.4.16
         prefix: /usr
       buildable: false
+    all:
+      target:
+      - ${TARGET}
   compilers:
   - compiler:
       spec: gcc@4.8.5
       paths:
         cc: /usr/bin/gcc
         cxx: /usr/bin/g++
-        f77: /usr/bin/gfortran
-        fc: /usr/bin/gfortran
+        f77: null
+        fc: null
       operating_system: centos7
-      target: ${TARGET}
       modules: []
       environment: {}
       extra_rpaths: []

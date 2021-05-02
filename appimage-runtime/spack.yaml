@@ -26,13 +26,13 @@ spack:
           -Wl,--gc-sections
         ldflags: -Wl,--gc-sections
       operating_system: centos7
-      target: ${TARGET}
       modules: []
       environment: {}
       extra_rpaths: []
   packages:
     all:
-      target: [${TARGET}]
+      target:
+      - ${TARGET}
     libfuse:
       externals:
       - spec: libfuse@2.9.2

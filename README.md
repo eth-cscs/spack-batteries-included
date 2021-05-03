@@ -155,38 +155,16 @@ $ NO_ENTRYPOINT= ./spack.x which python
 
 ## How do I build spack.x myself?
 
-It's best to install rootless Docker on your system:
+Initially you may need docker to get a rootfs filesystem for centos 7.
 
-https://docs.docker.com/engine/security/rootless/
-
-To build the latest everything from scratch (docker image, gcc with c, cxx and
-go support, appimage runtime, spack dependencies), run:
+Building goes like this:
 
 ```console
 make
 ```
 
-Afterwards you may want to use just
-
-```console
-make spack.x
-```
-
-so that make does not download a new Spack tarball each time.
-
-Or even:
-
-```console
-make spack.x-quick
-```
-
-which does not rebuild the bootstrap and runtime environments, but just creates
-the `spack.x` binary -- this is useful if you modified `bootstrap/spack` by
-hand and just need to bundle it into `spack.x`.
-
-The final products are:
+You'll find the output in
 
 ```
-output/spack.x            # the executable + archive
-output/spack.squashfs     # just an archive, in case your system doesn't have libfuse.
+build/output
 ```

@@ -1,3 +1,6 @@
+v1.5.0
+- No more docker (except maybe for creating the base rootfs) but just chroot
+
 v1.4.0
 - Include `mksquashfs` as an additional tool.
 - Introduce the `NO_ENTRYPOINT` variable which allows you to run `NO_ENTRYPOINT= spack.x [command]` which will run `[command]` directly in the shell (after spack.x is mounted, and environment modifications are done)

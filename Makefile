@@ -43,7 +43,7 @@ rootfs-setup-spack:
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
 	$(UNSHARE) bash -c 'make_relative_env /build/6_spack view install'
 	$(UNSHARE) bash -c 'prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test'
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ 1> /dev/null || true'
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub
 # Notice, we apply the patch from https://github.com/spack/spack/pull/20158/
@@ -54,7 +54,7 @@ bump_spack: 6_spack
 	$(UNSHARE) patch -p1 -d /build/6_spack/spack -i /build/6_spack/20158.patch
 	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/spack/etc/spack/
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ 1> /dev/null || true'
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
 
 squashfs: 6_spack
 	$(UNSHARE) rm -f /build/output/spack-$(TARGET).squashfs

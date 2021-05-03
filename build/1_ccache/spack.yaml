@@ -1,0 +1,16 @@
+spack:
+  specs:
+  - ccache
+  view: /build/1_ccache/view
+  config:
+    source_cache: /build/source_cache
+    install_tree:
+      root: ./install
+  packages:
+    cmake:
+      externals:
+      - spec: cmake@3.20.1
+        prefix: /usr/local
+      buildable: false
+    zstd:
+      variants: +multithread ~shared

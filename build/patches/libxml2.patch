@@ -1,0 +1,45 @@
+From fe78aedb3b8c8611a208abfbe5a8510266df0104 Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Mon, 3 May 2021 13:02:44 +0200
+Subject: [PATCH] Make gettext find libxml2
+
+gettext uses a test with <libxml2/libxml/someheader.h> to locate a header,
+and libxml2 itself includes <libxml/otherheader.h>, so both have to be
+in the include path.
+---
+ var/spack/repos/builtin/packages/gettext/package.py | 4 +---
+ var/spack/repos/builtin/packages/libxml2/package.py | 2 +-
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/var/spack/repos/builtin/packages/gettext/package.py b/var/spack/repos/builtin/packages/gettext/package.py
+index e184c89333..8cb7c04b19 100644
+--- a/var/spack/repos/builtin/packages/gettext/package.py
++++ b/var/spack/repos/builtin/packages/gettext/package.py
+@@ -73,10 +73,8 @@ def configure_args(self):
+             config_args.append('--disable-curses')
+ 
+         if '+libxml2' in spec:
+-            config_args.append('CPPFLAGS=-I{0}/include'.format(
++            config_args.append('--with-libxml2-prefix={0}'.format(
+                 spec['libxml2'].prefix))
+-            config_args.append('LDFLAGS=-L{0} -Wl,-rpath,{0}'.format(
+-                spec['libxml2'].libs.directories[0]))
+         else:
+             config_args.append('--with-included-libxml')
+ 
+diff --git a/var/spack/repos/builtin/packages/libxml2/package.py b/var/spack/repos/builtin/packages/libxml2/package.py
+index 10595f6352..781c4a9d3e 100644
+--- a/var/spack/repos/builtin/packages/libxml2/package.py
++++ b/var/spack/repos/builtin/packages/libxml2/package.py
+@@ -48,7 +48,7 @@ class Libxml2(AutotoolsPackage):
+     def headers(self):
+         include_dir = self.spec.prefix.include.libxml2
+         hl = find_all_headers(include_dir)
+-        hl.directories = include_dir
++        hl.directories = [include_dir, self.spec.prefix.include]
+         return hl
+ 
+     def configure_args(self):
+-- 
+2.25.1
+

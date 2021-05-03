@@ -1,0 +1,35 @@
+spack:
+  specs:
+  - gcc@10.3.0 ~bootstrap +strip +binutils languages=c,c++,go
+  - patchelf
+  view: /build/2_compiler/view
+  config:
+    source_cache: /build/source_cache
+    ccache: true
+    install_tree:
+      root: ./install
+  packages:
+    gettext:
+      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
+    openssl:
+      variants: ~systemcerts
+    binutils:
+      variants: +ld +plugins +gas ~lto ~gold ~nls
+    zstd:
+      variants: ~multithread ~shared
+    berkeley-db:
+      variants: ~cxx ~stl
+  compilers:
+  - compiler:
+      spec: gcc@4.8.5
+      paths:
+        cc: /bin/gcc
+        cxx: /bin/g++
+        f77: null
+        fc: null
+      flags: {}
+      operating_system: centos7
+      target: x86_64
+      modules: []
+      environment: {}
+      extra_rpaths: []

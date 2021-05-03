@@ -1,19 +1,37 @@
 export TARGET ?= x86_64
 DOCKER ?= docker
 CURL ?= curl
-IMAGE_NAME ?= spack-old-glibc
 PATCH ?= patch
-DOCKER_FLAGS ?= --rm \
-	-v $(CURDIR)/appimage-runtime:/appimage-runtime \
-	-v $(CURDIR)/bootstrap-spack:/bootstrap-spack \
-	-v $(CURDIR)/env-tools:/env-tools \
-	-v $(CURDIR)/output:/output \
-	-v $(CURDIR)/ccache:/ccache \
-	-v $(CURDIR)/compiler:/compiler \
-	-v $(CURDIR)/source_cache:/source_cache \
-	-e PATH="/appimage-runtime/view/bin:/compiler/view/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/spack/bin"
+UNSHARE ?= unshare -rm ./unshare.sh
 
 all: spack.develop.x
+
+rootfs:
+	unshare -rm /bin/sh -c 'rm -rf rootfs && mkdir rootfs && docker export $$(docker create centos:7) | tar --no-same-owner -xC rootfs'
+
+rootfs-setup-spack: rootfs
+	$(UNSHARE) setup.sh
+
+1_ccache:
+	$(UNSHARE) spack -e /build/1_ccache external find --not-buildable cmake
+	$(UNSHARE) spack -e /build/1_ccache install -j $$(nproc) -v
+
+2_compiler:
+	$(UNSHARE) spack -e /build/2_compiler install -j $$(nproc) -v
+
+# A Go tool that allows you to rewrite symlinks, rpaths and runpaths
+# and make all relative with respect to the root of the bootstrap folder.
+3_environment:
+	$(UNSHARE) go build -gccgoflags "-s -w" -o /build/3_environment/make_relative_env /build/3_environment/make_relative_env.go
+	$(UNSHARE) go build -gccgoflags "-s -w" -o /build/3_environment/prune /build/3_environment/prune.go
+
+4_runtime:
+	$(UNSHARE) spack -e /build/4_runtime external find --not-buildable python
+	$(UNSHARE) spack -e /build/4_runtime install -j $$(nproc) -v
+	$(UNSHARE) make -C /build/4_runtime CFLAGS=-I/build/4_runtime/view/include LDFLAGS=-L/build/4_runtime/view/lib
+
+5_spack:
+	$(UNSHARE) spack -e /build/5_spack install -j $$(nproc) -v
 
 # Build spack.x with the latest spack develop version as a tarball from github
 spack.develop.x: runtime bootstrap-install-spack-develop spack.x
@@ -23,30 +41,20 @@ spack.x: runtime.x bootstrap spack.x-quick
 
 # Just rebuild spack.x file without rebuilding the runtime / bootstrap bits.
 spack.x-quick: squashfs
-	cat appimage-runtime/runtime output/spack.squashfs > output/spack.x
-	chmod +x output/spack.x
-
-# Build a docker image with an old version of glibc
-docker: docker/Dockerfile
-	$(DOCKER) build --build-arg TARGET -t $(IMAGE_NAME) docker/
+	cat build/runtime build/spack.squashfs > build/spack.x
+	chmod +x build/spack.x
 
 squashfs: docker
-	rm -f output/spack.squashfs
-	$(DOCKER) run $(DOCKER_FLAGS) -w /output $(IMAGE_NAME) \
-		/appimage-runtime/view/bin/mksquashfs /bootstrap-spack spack.squashfs -all-root
+	rm -f build/spack.squashfs
+	$(UNSHARE) mksquashfs /build/5_spack /build/spack.squashfs -all-root
 
-# A Go tool that allows you to rewrite symlinks, rpaths and runpaths
-# and make all relative with respect to the root of the bootstrap folder.
 env-tools: compiler env-tools/make_relative_env.go env-tools/prune.go
 	$(DOCKER) run $(DOCKER_FLAGS) -w /env-tools $(IMAGE_NAME) go build -gccgoflags "-s -w" -o make_relative_env make_relative_env.go
 	$(DOCKER) run $(DOCKER_FLAGS) -w /env-tools $(IMAGE_NAME) go build -gccgoflags "-s -w" -o prune prune.go
 
 # Create a runtime executable for AppImage (using zstd and dynamic linking against libfuse)
 runtime: docker appimage-runtime/spack.yaml compiler
-	$(DOCKER) run $(DOCKER_FLAGS) -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . external find --not-buildable libfuse pkg-config cmake autoconf automake libtool m4
-	$(DOCKER) run $(DOCKER_FLAGS) -w /appimage-runtime $(IMAGE_NAME) spack --color=always -e . install -v
-	$(DOCKER) run $(DOCKER_FLAGS) -w /appimage-runtime $(IMAGE_NAME) make clean
-	$(DOCKER) run $(DOCKER_FLAGS) -w /appimage-runtime -e C_INCLUDE_PATH=/appimage-runtime/view/include -e LIBRARY_PATH=/appimage-runtime/view/lib $(IMAGE_NAME) make
+	
 
 compiler: docker compiler/spack.yaml
 	$(DOCKER) run $(DOCKER_FLAGS) -w /compiler $(IMAGE_NAME) spack --color=always -e . external find --not-buildable pkg-config cmake autoconf automake libtool m4
@@ -97,17 +105,22 @@ bootstrap-install-spack-develop: bootstrap
 	$(DOCKER) run $(DOCKER_FLAGS) -w /bootstrap-spack $(IMAGE_NAME) bash -c 'find . -iname "__pycache__" | xargs rm -rf'
 	$(DOCKER) run $(DOCKER_FLAGS) -w /bootstrap-spack $(IMAGE_NAME) ./AppRun python -m compileall spack/ 1> /dev/null || true
 
+
+
 clean:
-	rm -f output/spack.x output/spack.squashfs
+	rm -f build/spack.x build/spack.squashfs
 
-clean-bootstrap:
-	rm -rf bootstrap-spack/install bootstrap-spack/.spack-env bootstrap-spack/view bootstrap-spack/spack.lock
+clean-1_ccache:
+	rm -rf build/1_ccache/install build/1_ccache/spack.lock build/1_ccache/.spack-env build/1_ccache/view
 
-clean-runtime:
-	rm -rf appimage-runtime/runtime.o appimage-runtime/runtime appimage-runtime/spack.lock appimage-runtime/install appimage-runtime/.spack-env appimage-runtime/view
+clean-2_compiler:
+	rm -rf build/2_compiler/install build/2_compiler/spack.lock build/2_compiler/.spack-env build/2_compiler/view
 
-clean-compiler:
-	rm -rf compiler/spack.lock compiler/install compiler/.spack-env compiler/view
+clean-3_environment:
+	rm -rf build/3_environment/make_relative_env build/3_environment/prune
 
-clean-docker:
-	$(DOCKER) rmi $(IMAGE_NAME)
+clean-4_runtime:
+	rm -rf build/4_runtime/install build/4_runtime/spack.lock build/4_runtime/.spack-env build/4_runtime/view
+
+clean-5_spack:
+	rm -rf build/5_spack/install build/5_spack/spack.lock build/5_spack/.spack-env build/5_spack/view

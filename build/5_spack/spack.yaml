@@ -18,7 +18,7 @@ spack:
   - xz
   - zstd ~shared
   concretization: together
-  view: ./view
+  view: /build/5_spack/view
   packages:
     all:
       target:
@@ -29,22 +29,17 @@ spack:
       variants: ~systemcerts
     berkeley-db:
       variants: ~cxx ~stl
-    cmake:
-      externals:
-      - spec: cmake@3.20.1
-        prefix: /usr/local
-      buildable: false
   config:
     ccache: true
-    source_cache: /source_cache
+    source_cache: /build/source_cache
     install_tree:
       root: ./install
   'compilers:':
   - compiler:
       spec: gcc@10.3.0
       paths:
-        cc: /compiler/view/bin/gcc
-        cxx: /compiler/view/bin/g++
+        cc: /build/1_compiler/view/bin/gcc
+        cxx: /build/1_compiler/view/bin/g++
         f77: null
         fc: null
       flags:

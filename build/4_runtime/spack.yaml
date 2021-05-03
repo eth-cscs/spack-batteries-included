@@ -1,0 +1,48 @@
+spack:
+  specs:
+  - squashfuse@master ~lz4 ~lzo +min_size ~shared ~xz ~zlib
+  - squashfs +gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
+  concretization: together
+  view: /build/4_runtime/view
+  config:
+    source_cache: /build/source_cache
+    ccache: true
+    install_tree:
+      root: ./install
+  'compilers:':
+  - compiler:
+      spec: gcc@10.3.0
+      paths:
+        cc: /build/2_compiler/view/bin/gcc
+        cxx: /build/2_compiler/view/bin/g++
+        f77: null
+        fc: null
+      flags:
+        cflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        cxxflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        ldflags: -Wl,--gc-sections
+      operating_system: centos7
+      modules: []
+      environment: {}
+      extra_rpaths: []
+  packages:
+    python:
+      externals:
+      - spec: python@3.6.8+bz2+ctypes+dbm+lzma+nis+pyexpat+readline+sqlite3+ssl~tix~tkinter+uuid+zlib
+        prefix: /usr
+      buildable: false
+    all:
+      target:
+      - ${TARGET}
+    gettext:
+      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
+    openssl:
+      variants: ~systemcerts
+    berkeley-db:
+      variants: ~cxx ~stl
+    zlib:
+      variants: ~shared
+    zstd:
+      variants: ~shared~programs build_type=MinSizeRel

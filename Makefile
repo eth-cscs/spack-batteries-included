@@ -9,7 +9,7 @@ all: spack.develop.x
 rootfs:
 	unshare -rm /bin/sh -c 'rm -rf rootfs && mkdir rootfs && docker export $$(docker create centos:7) | tar --no-same-owner -xC rootfs'
 
-rootfs-setup-spack:
+rootfs-with-spack: rootfs
 	$(UNSHARE) setup.sh
 
 1_ccache:

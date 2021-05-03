@@ -160,6 +160,7 @@ Initially you may need docker to get a rootfs filesystem for centos 7.
 Building goes like this:
 
 ```console
+make rootfs-with-spack
 make
 ```
 

@@ -29,6 +29,7 @@ patch -p1 -d /opt/spack -i /build/patches/hack-wrapper.patch
 
 patch -p1 -d /opt/spack -i /build/patches/autoconf.patch
 patch -p1 -d /opt/spack -i /build/patches/curl.patch
+patch -p1 -d /opt/spack -i /build/patches/flex.patch
 patch -p1 -d /opt/spack -i /build/patches/gettext.patch
 patch -p1 -d /opt/spack -i /build/patches/help2man.patch
 patch -p1 -d /opt/spack -i /build/patches/squashfuse.patch

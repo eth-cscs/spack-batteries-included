@@ -1,0 +1,22 @@
+From 2ba9c1477f2f72fec6a86ba004dd868e5f0dd05c Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Mon, 3 May 2021 20:51:14 +0200
+Subject: [PATCH] drop gettext dep from help2man
+
+---
+ var/spack/repos/builtin/packages/help2man/package.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/var/spack/repos/builtin/packages/help2man/package.py b/var/spack/repos/builtin/packages/help2man/package.py
+index 6b000e7203..8f07a29f75 100644
+--- a/var/spack/repos/builtin/packages/help2man/package.py
++++ b/var/spack/repos/builtin/packages/help2man/package.py
+@@ -18,5 +18,4 @@ class Help2man(AutotoolsPackage, GNUMirrorPackage):
+     version('1.47.8', sha256='528f6a81ad34cbc76aa7dce5a82f8b3d2078ef065271ab81fda033842018a8dc')
+     version('1.47.4', sha256='d4ecf697d13f14dd1a78c5995f06459bff706fd1ce593d1c02d81667c0207753')
+ 
+-    depends_on('gettext', type='build')
+     depends_on('perl', type=('build', 'run'))
+-- 
+2.25.1
+

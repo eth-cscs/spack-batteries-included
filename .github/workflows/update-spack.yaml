@@ -55,7 +55,7 @@ jobs:
             cp "$GITHUB_WORKSPACE/config.yaml" squashfs-root/spack/etc/spack/
 
             find . -iname "__pycache__" -print0 | xargs --null rm -rf
-            ./AppRun python -m compileall spack/ 1> /dev/null || true
+            ./AppRun python -m compileall install/ spack/ 1> /dev/null || true
 
             # Create a new squashfs file
             NO_ENTRYPOINT= ../spack-x86_64-old.x mksquashfs squashfs-root ../spack-x86_64.squashfs -all-root

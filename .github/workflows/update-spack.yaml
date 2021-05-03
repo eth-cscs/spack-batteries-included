@@ -22,10 +22,10 @@ jobs:
           curl -LfSs -o runtime-x86_64-fuse2  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse2"
           curl -LfSs -o runtime-x86_64-fuse3  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse3"
           curl -LfSs -o spack-x86_64.squashfs "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.squashfs"
-          curl -LfSs -o spack-x86_64.x        "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
           curl -LfSs -o spack-x86_64-fuse3.x  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64-fuse3.x"
-          curl -LSsf -o 20158.patch           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/bootstrap-spack/20158.patch"
-          curl -LSsf -o config.yaml           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/bootstrap-spack/config.yaml"
+          curl -LfSs -o spack-x86_64.x        "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
+          curl -LSsf -o 20158.patch           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
+          curl -LSsf -o config.yaml           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
 
 
           echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-x86_64-fuse2"  | sha256sum --check

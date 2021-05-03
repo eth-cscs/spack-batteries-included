@@ -22,7 +22,7 @@ jobs:
           curl -LfSs -o runtime-x86_64-fuse2  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse2"
           curl -LfSs -o runtime-x86_64-fuse3  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse3"
           curl -LfSs -o spack-x86_64.squashfs "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.squashfs"
-          curl -LfSs -o spack-x86_64.x        "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
+          curl -LfSs -o spack-x86_64-old.x    "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
           curl -LSsf -o 20158.patch           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
           curl -LSsf -o config.yaml           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
 
@@ -30,18 +30,18 @@ jobs:
           echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-x86_64-fuse2"  | sha256sum --check
           echo "82017d63610a9a9ce8a76ff30cbdb1c6cb7a722d13eb809aa562253670baecab runtime-x86_64-fuse3"  | sha256sum --check
           echo "dc1422a7c6137e3a089a44ce37b3f9d80bd53df79187215028ed24e1a8906e61 spack-x86_64.squashfs" | sha256sum --check
-          echo "f188881d345132c45b1d6febae31d1c6e43871dad0865d384855410b314bbeb1 spack-x86_64.x"        | sha256sum --check
+          echo "f188881d345132c45b1d6febae31d1c6e43871dad0865d384855410b314bbeb1 spack-x86_64-old.x"    | sha256sum --check
           echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"           | sha256sum --check
           echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"           | sha256sum --check
 
-          chmod +x spack-x86_64.x
+          chmod +x spack-x86_64-old.x
 
           # Extract them.
           (
             mkdir -p x86_64 && cd x86_64 || exit
 
             echo "Extracting spack-x86_64.x $BASE_VERSION"
-            NO_ENTRYPOINT= ../spack-x86_64.x unsquashfs ../spack-x86_64.squashfs
+            NO_ENTRYPOINT= ../spack-x86_64-old.x unsquashfs ../spack-x86_64.squashfs
             rm ../spack-x86_64.squashfs
             rm -rf squashfs-root/spack
             mkdir squashfs-root/spack
@@ -58,7 +58,7 @@ jobs:
             ./AppRun python -m compileall spack/ 1> /dev/null || true
 
             # Create a new squashfs file
-            NO_ENTRYPOINT= ../spack-x86_64.x mksquashfs squashfs-root ../spack-x86_64.squashfs -all-root
+            NO_ENTRYPOINT= ../spack-x86_64-old.x mksquashfs squashfs-root ../spack-x86_64.squashfs -all-root
           ) 
 
           # Overwrite spack.x

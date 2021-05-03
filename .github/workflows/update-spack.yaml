@@ -22,7 +22,6 @@ jobs:
           curl -LfSs -o runtime-x86_64-fuse2  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse2"
           curl -LfSs -o runtime-x86_64-fuse3  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse3"
           curl -LfSs -o spack-x86_64.squashfs "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.squashfs"
-          curl -LfSs -o spack-x86_64-fuse3.x  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64-fuse3.x"
           curl -LfSs -o spack-x86_64.x        "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
           curl -LSsf -o 20158.patch           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
           curl -LSsf -o config.yaml           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
@@ -31,86 +30,80 @@ jobs:
           echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-x86_64-fuse2"  | sha256sum --check
           echo "82017d63610a9a9ce8a76ff30cbdb1c6cb7a722d13eb809aa562253670baecab runtime-x86_64-fuse3"  | sha256sum --check
           echo "dc1422a7c6137e3a089a44ce37b3f9d80bd53df79187215028ed24e1a8906e61 spack-x86_64.squashfs" | sha256sum --check
-          echo "7fe970da791bbbf92f00628e8e3b26e8c4a316f28e7e88d5bdad23750aa98e76 spack-x86_64-fuse3.x"  | sha256sum --check
           echo "f188881d345132c45b1d6febae31d1c6e43871dad0865d384855410b314bbeb1 spack-x86_64.x"        | sha256sum --check
           echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"           | sha256sum --check
           echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"           | sha256sum --check
 
           chmod +x spack-x86_64.x
 
-          NO_ENTRYPOINT= ./spack-x86_64.x echo hello
+          # Extract them.
+          (
+            mkdir -p x86_64 && cd x86_64 || exit
 
-          # # Extract them.
+            echo "Extracting spack-x86_64.x $BASE_VERSION"
+            NO_ENTRYPOINT= ../spack-x86_64.x unsquashfs ../spack-x86_64.squashfs
+            rm ../spack-x86_64.squashfs
+            rm -rf squashfs-root/spack
+            mkdir squashfs-root/spack
 
-          # echo "Extracting spack-x86_64.x $BASE_VERSION"
-          # mkdir spack_x
+            echo "Download Spack $SPACK_SHA"
+            curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C squashfs-root/spack
+            echo "$SPACK_SHA" > squashfs-root/spack_sha
 
-          # # Replace the spack version
-          # echo "Download Spack $SPACK_SHA"
-          # rm -rf spack_x/squashfs-root/spack
-          # mkdir spack_x/squashfs-root/spack
-          # curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_x/squashfs-root/spack
-          # echo "$SPACK_SHA" > spack_x/squashfs-root/spack_sha
+            # Apply the patch that allows you to drop specifying --log-file
+            patch -p1 -d squashfs-root/spack -i "$GITHUB_WORKSPACE/20158.patch"
+            cp "$GITHUB_WORKSPACE/config.yaml" squashfs-root/spack/etc/spack/
 
-          # # Apply the patch that allows you to drop specifying --log-file
-          # (
-          #   cd spack_x/squashfs-root/spack || exit
-          #   patch -p1 < "$GITHUB_WORKSPACE/20158.patch"
-          #   cp "$GITHUB_WORKSPACE/config.yaml" etc/spack/
-          # )
+            find . -iname "__pycache__" -print0 | xargs --null rm -rf
+            ./AppRun python -m compileall spack/ 1> /dev/null || true
 
-          # # Generate __pycache__ files
-          # (
-          #   cd spack_x/squashfs-root || exit
-          #   find . -iname "__pycache__" -print0 | xargs --null rm -rf
-          #   ./AppRun python -m compileall spack/ 1> /dev/null || true
-          # )
+            # Create a new squashfs file
+            NO_ENTRYPOINT= ../spack-x86_64.x mksquashfs squashfs-root ../spack-x86_64.squashfs -all-root
+          ) 
 
-          # # Create a new squashfs file
-          # ./runtime_x/squashfs-root/view/bin/mksquashfs spack_x/squashfs-root spack.squashfs -all-root
+          # Overwrite spack.x
+          cat runtime-x86_64-fuse2 spack-x86_64.squashfs > spack-x86_64.x
+          cat runtime-x86_64-fuse3 spack-x86_64.squashfs > spack-x86_64-fuse3.x
+      - name: Upload release assets
+        run: |
+          curl -fsS \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/haampie/spack-batteries-included/releases > release_info.json
 
-          # # Overwrite spack.x
-          # cat runtime_x/squashfs-root/runtime spack.squashfs > spack.x
-      # - name: Upload release assets
-      #   run: |
-      #     curl -fsS \
-      #       -H "Accept: application/vnd.github.v3+json" \
-      #       https://api.github.com/repos/haampie/spack-batteries-included/releases > release_info.json
+          # Get the release url
+          release_id="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .id')"
 
-      #     # Get the release url
-      #     release_id="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .id')"
+          if [ -z "$release_id" ]; then
+            echo "Couldn't get release id"
+            exit 1
+          fi
 
-      #     if [ -z "$release_id" ]; then
-      #       echo "Couldn't get release id"
-      #       exit 1
-      #     fi
+          echo "Using release id $release_id"
 
-      #     echo "Using release id $release_id"
+          for name in spack-x86_64.x spack-x86_64-fuse3.x
+          do
+            # Get the asset url
+            asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"
 
-      #     for name in spack.x spack.squashfs
-      #     do
-      #       # Get the asset url
-      #       asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"
+            # Delete the asset
+            if [ -n "$asset_url" ]; then
+              echo "Deleting remote $name"
+              curl -fsS \
+                -X DELETE \
+                -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "$asset_url"
+            fi
 
-      #       # Delete the asset
-      #       if [ -n "$asset_url" ]; then
-      #         echo "Deleting remote $name"
-      #         curl -fsS \
-      #           -X DELETE \
-      #           -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-      #           -H "Accept: application/vnd.github.v3+json" \
-      #           "$asset_url"
-      #       fi
-
-      #       # Upload a new one.
-      #       echo "Uploading $name"
-      #       curl -fsS \
-      #         -X POST \
-      #         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-      #         -H "Content-Type: application/octet-stream" \
-      #         --data-binary @$name \
-      #         "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
-      #     done
+            # Upload a new one.
+            echo "Uploading $name"
+            curl -fsS \
+              -X POST \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Content-Type: application/octet-stream" \
+              --data-binary @$name \
+              "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
+          done
 
 
 

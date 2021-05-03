@@ -1,14 +1,33 @@
 spack:
   specs:
-  - squashfuse@master ~lz4 ~lzo +min_size ~shared ~xz ~zlib
+  - patchelf
+  - git ~nls ~perl ~man
   - squashfs +gzip ~lz4 ~lzo ~xz +zstd default_compression=zstd
-  concretization: together
-  view: /build/4_runtime/view
+  view: /build/3_more_tools/view
   config:
     source_cache: /build/source_cache
     ccache: true
     install_tree:
       root: ./install
+  packages:
+    all:
+      target:
+      - ${TARGET}
+    gettext:
+      variants: ~bzip2 ~curses ~git +libxml2 ~tar ~xz ~openmp ~libasprintf
+    openssl:
+      variants: ~systemcerts
+    binutils:
+      variants: +ld +plugins +gas ~lto ~gold ~nls
+    zstd:
+      variants: ~multithread ~shared
+    berkeley-db:
+      variants: ~cxx ~stl
+    cmake:
+      externals:
+      - spec: cmake@3.20.1
+        prefix: /usr/local
+      buildable: false
   'compilers:':
   - compiler:
       spec: gcc@10.3.0
@@ -27,22 +46,3 @@ spack:
       modules: []
       environment: {}
       extra_rpaths: []
-  packages:
-    python:
-      externals:
-      - spec: python@3.6.8+bz2+ctypes+dbm+lzma+nis+pyexpat+readline+sqlite3+ssl~tix~tkinter+uuid+zlib
-        prefix: /usr
-      buildable: false
-    all:
-      target:
-      - ${TARGET}
-    gettext:
-      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
-    openssl:
-      variants: ~systemcerts
-    berkeley-db:
-      variants: ~cxx ~stl
-    zlib:
-      variants: ~shared
-    zstd:
-      variants: ~shared~programs build_type=MinSizeRel

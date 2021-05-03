@@ -1,7 +1,6 @@
 spack:
   specs:
   - gcc@10.3.0 ~bootstrap +strip +binutils languages=c,c++,go
-  - patchelf
   view: /build/2_compiler/view
   config:
     source_cache: /build/source_cache
@@ -9,8 +8,11 @@ spack:
     install_tree:
       root: ./install
   packages:
+    all:
+      target:
+      - ${TARGET}
     gettext:
-      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
+      variants: ~bzip2 ~curses ~git +libxml2 ~tar ~xz ~openmp ~libasprintf
     openssl:
       variants: ~systemcerts
     binutils:
@@ -19,6 +21,11 @@ spack:
       variants: ~multithread ~shared
     berkeley-db:
       variants: ~cxx ~stl
+    cmake:
+      externals:
+      - spec: cmake@3.20.1
+        prefix: /usr/local
+      buildable: false
   compilers:
   - compiler:
       spec: gcc@4.8.5
@@ -29,7 +36,6 @@ spack:
         fc: null
       flags: {}
       operating_system: centos7
-      target: x86_64
       modules: []
       environment: {}
       extra_rpaths: []

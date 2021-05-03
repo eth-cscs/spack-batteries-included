@@ -1,9 +1,10 @@
 build/*/.spack-env
 build/*/install
-build/*/runtime
+build/*/runtime-*
 build/*/spack.lock
 build/*/view
-build/5_spack/spack
+build/6_spack/spack
+build/output/*
 *.o
 *.x
 *.squashfs

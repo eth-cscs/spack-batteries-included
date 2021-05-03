@@ -1,0 +1,40 @@
+From 09da463185f0350ceda47da228d8e866760012b1 Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Mon, 3 May 2021 13:22:27 +0200
+Subject: [PATCH] Add squashfuse@0.1.104-74f4fe8
+
+---
+ var/spack/repos/builtin/packages/squashfuse/package.py | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/var/spack/repos/builtin/packages/squashfuse/package.py b/var/spack/repos/builtin/packages/squashfuse/package.py
+index 7bce4a6b2a..6a3384ef08 100644
+--- a/var/spack/repos/builtin/packages/squashfuse/package.py
++++ b/var/spack/repos/builtin/packages/squashfuse/package.py
+@@ -16,6 +16,8 @@ class Squashfuse(AutotoolsPackage):
+     maintainers = ['haampie']
+ 
+     version('master', branch='master')
++    version('0.1.104-74f4fe8', url='https://github.com/vasi/squashfuse/tarball/74f4fe86ebd47a2fb7df5cb60d452354f977c72e',
++            sha256='c049bd2cf6e0913ea5ab866f66c48533b026f31a27ec2f88bac28270af1474bd')
+     version('0.1.104', sha256='aa52460559e0d0b1753f6b1af5c68cfb777ca5a13913285e93f4f9b7aa894b3a')
+     version('0.1.103', sha256='42d4dfd17ed186745117cfd427023eb81effff3832bab09067823492b6b982e7')
+ 
+@@ -46,10 +48,10 @@ class Squashfuse(AutotoolsPackage):
+     depends_on('xz', when='+xz')
+     depends_on('zstd', when='+zstd')
+ 
+-    depends_on('m4',       type='build', when='@master')
+-    depends_on('autoconf', type='build', when='@master')
+-    depends_on('automake', type='build', when='@master')
+-    depends_on('libtool',  type='build', when='@master')
++    depends_on('m4',       type='build', when='@master,0.1.104-74f4fe8')
++    depends_on('autoconf', type='build', when='@master,0.1.104-74f4fe8')
++    depends_on('automake', type='build', when='@master,0.1.104-74f4fe8')
++    depends_on('libtool',  type='build', when='@master,0.1.104-74f4fe8')
+ 
+     def flag_handler(self, name, flags):
+         if name == 'cflags' and '+min_size' in self.spec:
+-- 
+2.25.1
+

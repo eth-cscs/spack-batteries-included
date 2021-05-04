@@ -19,5 +19,6 @@ chroot rootfs env --ignore-environment - \
     CCACHE_DIR=/build/ccache \
     SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt \
     GIT_SSL_CAINFO=/etc/ssl/certs/ca-bundle.crt \
+    SPACK_OPTIMIZATION_FLAGS="-Os" \
     TARGET=$(arch) \
     "$@"

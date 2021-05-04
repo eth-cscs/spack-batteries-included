@@ -1,3 +1,7 @@
+v1.6.0
+- Add a flag `SPACK_OPTIMIZATION_FLAGS` which you can use to intercept `-O*` and `-g` flags and replace them by whatever you want.
+  For instance if a package `pkg` defaults to `-O2 -g` flags, setting `SPACK_OPTIMIZATION_FLAGS="-Os" spack install pkg` will drop the `-g` and replace `-O2` with `-Os`.
+
 v1.5.0
 - No more docker (except maybe for creating the base rootfs) but just chroot
 

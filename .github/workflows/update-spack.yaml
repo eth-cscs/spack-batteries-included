@@ -23,14 +23,15 @@ jobs:
           curl -LfSs -o runtime-x86_64-fuse3  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-x86_64-fuse3"
           curl -LfSs -o spack-x86_64.squashfs "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.squashfs"
           curl -LfSs -o spack-x86_64-old.x    "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-x86_64.x"
+          curl -LSsf -o hack-wrapper.patch    "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/patches/hack-wrapper.patch"
           curl -LSsf -o 20158.patch           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
           curl -LSsf -o config.yaml           "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
-
 
           echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-x86_64-fuse2"  | sha256sum --check
           echo "82017d63610a9a9ce8a76ff30cbdb1c6cb7a722d13eb809aa562253670baecab runtime-x86_64-fuse3"  | sha256sum --check
           echo "dc1422a7c6137e3a089a44ce37b3f9d80bd53df79187215028ed24e1a8906e61 spack-x86_64.squashfs" | sha256sum --check
           echo "f188881d345132c45b1d6febae31d1c6e43871dad0865d384855410b314bbeb1 spack-x86_64-old.x"    | sha256sum --check
+          echo "1c83a51b49cfbc4faf90b01ac944fedf47ad8a6528d45454503ded5bfa3ef97e hack-wrapper.patch"    | sha256sum --check
           echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"           | sha256sum --check
           echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"           | sha256sum --check
 
@@ -53,6 +54,7 @@ jobs:
 
             # Apply the patch that allows you to drop specifying --log-file
             patch -p1 -d spack -i "$GITHUB_WORKSPACE/20158.patch"
+            patch -p1 -d spack -i "$GITHUB_WORKSPACE/hack-wrapper.patch"
             cp "$GITHUB_WORKSPACE/config.yaml" spack/etc/spack/
 
             find . -iname "__pycache__" -print0 | xargs --null rm -rf

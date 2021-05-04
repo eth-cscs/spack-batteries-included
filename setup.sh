@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -xeuo pipefail
 
 yum install -y \
     bzip2 \
@@ -27,10 +28,8 @@ curl -Ls "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.
 
 patch -p1 -d /opt/spack -i /build/patches/hack-wrapper.patch
 
-patch -p1 -d /opt/spack -i /build/patches/autoconf.patch
 patch -p1 -d /opt/spack -i /build/patches/curl.patch
 patch -p1 -d /opt/spack -i /build/patches/flex.patch
 patch -p1 -d /opt/spack -i /build/patches/gettext.patch
-patch -p1 -d /opt/spack -i /build/patches/help2man.patch
 patch -p1 -d /opt/spack -i /build/patches/squashfuse.patch
 patch -p1 -d /opt/spack -i /build/patches/tar.patch

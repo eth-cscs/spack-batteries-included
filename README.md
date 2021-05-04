@@ -1,13 +1,13 @@
 [![Update spack develop version](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml/badge.svg?branch=master)](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml)
 
-# 🔋 Spack with batteries included (linux/amd64)
+# 🔋 Spack with batteries included (linux/x86_64)
 
 [Spack](https://github.com/spack/spack) is a build tool, and build tools should be trivial to install.
 
 This repo offers a single file executable for Spack:
 
 ```console
-$ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.x
+$ wget -qO spack.x https://github.com/haampie/spack-batteries-included/releases/download/develop/spack-x86_64.x
 $ chmod +x spack.x
 $ ./spack.x install zstd +programs ~shared build_type=Release
 ```

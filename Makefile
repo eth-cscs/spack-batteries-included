@@ -1,7 +1,7 @@
 DOCKER ?= docker
 CURL ?= curl
 PATCH ?= patch
-UNSHARE ?= unshare -rm ./unshare.sh
+UNSHARE ?= unshare -rm --pid --fork --mount-proc ./unshare.sh
 TARGET ?= $(shell arch)
 
 all: spack.develop.x
@@ -28,8 +28,8 @@ rootfs-with-spack: rootfs
 # A Go tool that allows you to rewrite symlinks, rpaths and runpaths
 # and make all relative with respect to the root of the bootstrap folder.
 4_environment: 3_more_tools
-	$(UNSHARE) go build -gccgoflags "-s -w" -o /build/4_environment/make_relative_env /build/4_environment/make_relative_env.go
-	$(UNSHARE) go build -gccgoflags "-s -w" -o /build/4_environment/prune /build/4_environment/prune.go
+	$(UNSHARE) go build -o /build/4_environment/make_relative_env /build/4_environment/make_relative_env.go
+	$(UNSHARE) go build -o /build/4_environment/prune /build/4_environment/prune.go
 
 5_runtime: 4_environment
 	$(UNSHARE) spack -e /build/5_runtime install -j $$(nproc) -v
@@ -41,8 +41,8 @@ rootfs-with-spack: rootfs
 	$(UNSHARE) spack -e /build/6_spack gc -y
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "*.a" | xargs rm -f'
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
-	$(UNSHARE) bash -c 'make_relative_env /build/6_spack view install'
-	$(UNSHARE) bash -c 'prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test'
+	$(UNSHARE) make_relative_env /build/6_spack view install
+	$(UNSHARE) prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test
 	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub

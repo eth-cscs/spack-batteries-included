@@ -3,7 +3,9 @@
 # Make the system work nice
 mount --rbind /dev rootfs/dev
 mount --rbind /sys rootfs/sys
-touch rootfs/proc/cpuinfo    && mount --bind /proc/cpuinfo rootfs/proc/cpuinfo
+mount -t proc /proc rootfs/proc
+
+# make dns work
 touch rootfs/etc/resolv.conf && mount --bind /etc/resolv.conf rootfs/etc/resolv.conf
 
 # Mount some scripts we need

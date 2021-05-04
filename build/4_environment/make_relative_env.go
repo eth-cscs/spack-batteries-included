@@ -3,7 +3,6 @@ package main
 import (
     "debug/elf"
     "fmt"
-    "io"
     "log"
     "os"
     "os/exec"
@@ -18,14 +17,6 @@ func check(e error) {
         panic(e)
     }
 }
-
-func ioReader(file string) io.ReaderAt {
-    r, err := os.Open(file)
-    check(err)
-    return r
-}
-
-
 
 // HasFilePathPrefix reports whether the filesystem path s
 // begins with the elements in prefix.
@@ -151,8 +142,7 @@ func MakeThingsRelativeToRoot(root string, directories []string) {
         }
 
         // Check if this is an Elf file
-        f := ioReader(file)
-        _elf, err := elf.NewFile(f)
+        _elf, err := elf.Open(file)
 
         // Errors just means it's not an Elf file
         if err != nil { continue }

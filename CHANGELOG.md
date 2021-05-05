@@ -1,3 +1,6 @@
+v1.6.1
+- Fix shell argument escaping; previously spack.x build-env spec -- /bin/bash -c 'echo hi' would drop the quotes when passing arguments to spack.
+
 v1.6.0
 - Add a flag `SPACK_OPTIMIZATION_FLAGS` which you can use to intercept `-O*` and `-g` flags and replace them by whatever you want.
   For instance if a package `pkg` defaults to `-O2 -g` flags, setting `SPACK_OPTIMIZATION_FLAGS="-Os" spack install pkg` will drop the `-g` and replace `-O2` with `-Os`.

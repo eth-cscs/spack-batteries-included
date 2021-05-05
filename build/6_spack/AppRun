@@ -26,8 +26,8 @@ export TERMINFO="$HERE/view/share/terminfo"
 
 # By default run spack $@, but if NO_ENTRYPOINT=... run the command directly
 if [ -z ${NO_ENTRYPOINT+x} ]; then
-    $HERE/view/bin/python3 $HERE/spack/bin/spack $@
+    $HERE/view/bin/python3 $HERE/spack/bin/spack "$@"
 else
-    $@
+    "$@"
 fi
 

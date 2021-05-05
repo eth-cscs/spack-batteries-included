@@ -29,8 +29,8 @@ jobs:
 
           echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-x86_64-fuse2"  | sha256sum --check
           echo "82017d63610a9a9ce8a76ff30cbdb1c6cb7a722d13eb809aa562253670baecab runtime-x86_64-fuse3"  | sha256sum --check
-          echo "7e27bc0fbf75739defd2651908a599c7adcb5b0c912fb576f2798994355b4197 spack-x86_64.squashfs" | sha256sum --check
-          echo "2b57e14fa7c1c2666e4d0fc784ff5773633f062434cbe877347e1269aab10f62 spack-x86_64-old.x"    | sha256sum --check
+          echo "c9a0258a04528abfa6d011ee784b8448a0e2e59be33e04625f6a97a460f5d09b spack-x86_64.squashfs" | sha256sum --check
+          echo "cf90003f16823e2d9414faa63f9d2c948d93370cb2d2be0b56ddd4c387f7ecd8 spack-x86_64-old.x"    | sha256sum --check
           echo "1c83a51b49cfbc4faf90b01ac944fedf47ad8a6528d45454503ded5bfa3ef97e hack-wrapper.patch"    | sha256sum --check
           echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"           | sha256sum --check
           echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"           | sha256sum --check

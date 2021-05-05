@@ -35,7 +35,6 @@ jobs:
           echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"           | sha256sum --check
           echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"           | sha256sum --check
 
-
           chmod +x spack-x86_64-old.x
 
           # Extract them.
@@ -84,7 +83,7 @@ jobs:
 
           echo "Using release id $release_id"
 
-          for name in spack-x86_64.x spack-x86_64-fuse3.x
+          for name in spack-x86_64.x spack-x86_64-fuse3.x spack-x86_64.squashfs
           do
             # Get the asset url
             asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"

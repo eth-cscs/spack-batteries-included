@@ -1,21 +1,21 @@
 spack:
   specs:
   - binutils ~gold ~ld ~nls ~gas
-  - bzip2
+  - bzip2 ~shared
   - ccache
   - clingo-bootstrap@spack
   - curl
   - file
   - git ~perl ~nls ~man
-  - gmake
+  - gmake ~nls
   - gzip
   - patch
   - patchelf
   - python ~dbm ~libxml2
-  - squashfs +gzip +zstd ~lz4 ~lzo ~xz default_compression=zstd
+  - squashfs +gzip +zstd +lz4 +lzo +xz default_compression=zstd
   - tar
   - unzip
-  - xz
+  - xz ~shared
   - zstd ~shared +programs +multithread
   concretization: together
   view: /build/6_spack/view
@@ -30,6 +30,10 @@ spack:
     berkeley-db:
       variants: ~cxx ~stl
     zlib:
+      variants: ~shared
+    lzo:
+      variants: ~shared
+    lz4:
       variants: ~shared
     cmake:
       externals:

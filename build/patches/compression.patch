@@ -1,0 +1,65 @@
+diff --git a/var/spack/repos/builtin/packages/lz4/package.py b/var/spack/repos/builtin/packages/lz4/package.py
+index 4294210ac5..6b3d06ca59 100644
+--- a/var/spack/repos/builtin/packages/lz4/package.py
++++ b/var/spack/repos/builtin/packages/lz4/package.py
+@@ -26,6 +26,9 @@ class Lz4(MakefilePackage):
+ 
+     depends_on('valgrind', type='test')
+ 
++    variant('shared', default=True, description='Build shared library')
++    variant('static', default=True, description='Build static library')
++
+     def url_for_version(self, version):
+         url = "https://github.com/lz4/lz4/archive"
+ 
+@@ -47,7 +50,10 @@ def build(self, spec, prefix):
+             make(parallel=par)
+ 
+     def install(self, spec, prefix):
+-        make('install', 'PREFIX={0}'.format(prefix))
++        make('install',
++             'PREFIX={0}'.format(prefix),
++             'BUILD_SHARED={0}'.format('yes' if '+shared' in self.spec else 'no'),
++             'BUILD_STATIC={0}'.format('yes' if '+static' in self.spec else 'no'))
+ 
+     def patch(self):
+         # Remove flags not recognized by the NVIDIA compiler
+diff --git a/var/spack/repos/builtin/packages/lzo/package.py b/var/spack/repos/builtin/packages/lzo/package.py
+index 38b111f88c..080f64760a 100644
+--- a/var/spack/repos/builtin/packages/lzo/package.py
++++ b/var/spack/repos/builtin/packages/lzo/package.py
+@@ -19,8 +19,11 @@ class Lzo(AutotoolsPackage):
+     version('2.06', sha256='ff79e6f836d62d3f86ef6ce893ed65d07e638ef4d3cb952963471b4234d43e73')
+     version('2.05', sha256='449f98186d76ba252cd17ff1241ca2a96b7f62e0d3e4766f88730dab0ea5f333')
+ 
++    variant('shared', default=True, description='Enable shared libraries')
++    variant('static', default=True, description='Enable static libraries')
++
+     def configure_args(self):
+-        return [
+-            '--disable-dependency-tracking',
+-            '--enable-shared'
+-        ]
++        args = ['--disable-dependency-tracking']
++        args += self.enable_or_disable('shared')
++        args += self.enable_or_disable('static')
++        return args
+diff --git a/var/spack/repos/builtin/packages/xz/package.py b/var/spack/repos/builtin/packages/xz/package.py
+index 1162d21e65..32e214b490 100644
+--- a/var/spack/repos/builtin/packages/xz/package.py
++++ b/var/spack/repos/builtin/packages/xz/package.py
+@@ -28,6 +28,14 @@ class Xz(AutotoolsPackage, SourceforgePackage):
+ 
+     variant('pic', default=False,
+             description='Compile with position independent code.')
++    variant('shared', default=True, description='Build shared libraries')
++    variant('static', default=True, description='Build static libraries')
++
++    def configure_args(self):
++        args = []
++        args += self.enable_or_disable('shared')
++        args += self.enable_or_disable('static')
++        return args
+ 
+     def flag_handler(self, name, flags):
+         if name == 'cflags' and '+pic' in self.spec:

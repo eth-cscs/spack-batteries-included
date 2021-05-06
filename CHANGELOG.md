@@ -1,3 +1,6 @@
+v1.6.2
+- Add zstd executables and remove some unused shared libs.
+
 v1.6.1
 - Fix shell argument escaping; previously spack.x build-env spec -- /bin/bash -c 'echo hi' would drop the quotes when passing arguments to spack.
 

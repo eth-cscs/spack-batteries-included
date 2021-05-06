@@ -16,7 +16,7 @@ spack:
   - tar
   - unzip
   - xz
-  - zstd ~shared
+  - zstd ~shared +programs +multithread
   concretization: together
   view: /build/6_spack/view
   packages:
@@ -31,8 +31,6 @@ spack:
       variants: ~cxx ~stl
     zlib:
       variants: ~shared
-    zstd:
-      variants: ~shared~programs build_type=MinSizeRel
     cmake:
       externals:
       - spec: cmake@3.20.1

@@ -1,3 +1,8 @@
+v1.6.3
+- Don't set the MAGIC environment variable so that libtool can use its
+  hard-coded /usr/bin/file executable. `file` is still shipped, but the magic
+  file is set using a wrapper script.
+
 v1.6.2
 - Add zstd executables and remove some unused shared libs.
 

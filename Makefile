@@ -30,6 +30,7 @@ rootfs-with-spack: rootfs
 4_environment: 3_more_tools
 	$(UNSHARE) go build -o /build/4_environment/make_relative_env /build/4_environment/make_relative_env.go
 	$(UNSHARE) go build -o /build/4_environment/prune /build/4_environment/prune.go
+	$(UNSHARE) go build -o /build/4_environment/fix_file /build/4_environment/fix_file.go
 
 5_runtime: 4_environment
 	$(UNSHARE) spack -e /build/5_runtime install -j $$(nproc) -v
@@ -43,6 +44,7 @@ rootfs-with-spack: rootfs
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
 	$(UNSHARE) make_relative_env /build/6_spack view install
 	$(UNSHARE) prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test
+	$(UNSHARE) fix_file /build/6_spack/view/bin/file
 	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub

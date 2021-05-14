@@ -551,36 +551,6 @@ mkdir_p(const char* const path)
     return 0;
 }
 
-void
-print_help(const char *appimage_path)
-{
-    // TODO: "--appimage-list                 List content from embedded filesystem image\n"
-    fprintf(stderr,
-        "AppImage options:\n\n"
-        "  --appimage-extract [<pattern>]  Extract content from embedded filesystem image\n"
-        "                                  If pattern is passed, only extract matching files\n"
-        "  --appimage-help                 Print this help\n"
-        "  --appimage-mount                Mount embedded filesystem image and print\n"
-        "                                  mount point and wait for kill with Ctrl-C\n"
-        "  --appimage-offset               Print byte offset to start of embedded\n"
-        "                                  filesystem image\n"
-        "  --appimage-version              Print version of AppImageKit\n"
-        "\n"
-        "Portable home:\n"
-        "\n"
-        "  If you would like the application contained inside this AppImage to store its\n"
-        "  data alongside this AppImage rather than in your home directory, then you can\n"
-        "  place a directory named\n"
-        "\n"
-        "  %s.home\n"
-        "\n"
-        "  which will create this directory for you. As long as the directory exists\n"
-        "  and is neither moved nor renamed, the application contained inside this\n"
-        "  AppImage to store its data in this directory rather than in your home\n"
-        "  directory\n"
-    , appimage_path);
-}
-
 bool extract_appimage(const char* const appimage_path, const char* const _prefix, const char* const _pattern, const bool overwrite, const bool verbose) {
     sqfs_err err = SQFS_OK;
     sqfs_traverse trv;
@@ -753,56 +723,6 @@ bool extract_appimage(const char* const appimage_path, const char* const _prefix
     sqfs_fd_close(fs.fd);
 
     return rv;
-}
-
-int rm_recursive_callback(const char* path, const struct stat* stat, const int type, struct FTW* ftw) {
-    (void) stat;
-    (void) ftw;
-
-    switch (type) {
-        case FTW_NS:
-        case FTW_DNR:
-            fprintf(stderr, "%s: ftw error: %s\n",
-                path, strerror(errno));
-            return 1;
-
-        case FTW_D:
-            // ignore directories at first, will be handled by FTW_DP
-            break;
-
-        case FTW_F:
-        case FTW_SL:
-        case FTW_SLN:
-            if (remove(path) != 0) {
-                fprintf(stderr, "Failed to remove %s: %s\n", path, strerror(errno));
-                return false;
-            }
-            break;
-
-
-        case FTW_DP:
-            if (rmdir(path) != 0) {
-                fprintf(stderr, "Failed to remove directory %s: %s\n", path, strerror(errno));
-                return false;
-            }
-            break;
-
-        default:
-            fprintf(stderr, "Unexpected fts_info\n");
-            return 1;
-    }
-
-    return 0;
-};
-
-bool rm_recursive(const char* const path) {
-    // FTW_DEPTH: perform depth-first search to make sure files are deleted before the containing directories
-    // FTW_MOUNT: prevent deletion of files on other mounted filesystems
-    // FTW_PHYS: do not follow symlinks, but report symlinks as such; this way, the symlink targets, which might point
-    //           to locations outside path will not be deleted accidentally (attackers might abuse this)
-    int rv = nftw(path, &rm_recursive_callback, 0, FTW_DEPTH | FTW_MOUNT | FTW_PHYS);
-
-    return rv == 0;
 }
 
 void build_mount_point(char* mount_dir, const char* const argv0, char const* const temp_base, const size_t templen) {
@@ -978,31 +898,16 @@ int main(int argc, char *argv[]) {
 
     arg=getArg(argc,argv,'-');
 
-    /* Print the help and then exit */
-    if(arg && strcmp(arg,"appimage-help")==0) {
-        char fullpath[PATH_MAX];
-
-        ssize_t length = readlink(appimage_path, fullpath, sizeof(fullpath));
-        if (length < 0) {
-            fprintf(stderr, "Error getting realpath for %s\n", appimage_path);
-            exit(EXIT_EXECERROR);
-        }
-        fullpath[length] = '\0';
-
-        print_help(fullpath);
-        exit(0);
-    }
-
     /* Just print the offset and then exit */
-    if(arg && strcmp(arg,"appimage-offset")==0) {
+    if(arg && strcmp(arg,"squashfs-offset")==0) {
         printf("%lu\n", fs_offset);
         exit(0);
     }
 
     arg=getArg(argc,argv,'-');
 
-    /* extract the AppImage */
-    if(arg && strcmp(arg,"appimage-extract")==0) {
+    /* extract the squashfs file */
+    if(arg && strcmp(arg,"squashfs-extract")==0) {
         char* pattern;
 
         // default use case: use standard prefix
@@ -1012,11 +917,11 @@ int main(int argc, char *argv[]) {
             pattern = argv[2];
         } else {
             fprintf(stderr, "Unexpected argument count: %d\n", argc - 1);
-            fprintf(stderr, "Usage: %s --appimage-extract [<prefix>]\n", argv0_path);
+            fprintf(stderr, "Usage: %s --extract [<prefix>]\n", argv0_path);
             exit(1);
         }
 
-        if (!extract_appimage(appimage_path, "squashfs-root/", pattern, true, true)) {
+        if (!extract_appimage(appimage_path, "spack/", pattern, true, true)) {
             exit(1);
         }
 
@@ -1086,11 +991,8 @@ int main(int argc, char *argv[]) {
         if(0 != fusefs_main (5, child_argv, fuse_mounted)){
             char *title;
             char *body;
-            title = "Cannot mount AppImage, please check your FUSE setup.";
-            body = "You might still be able to extract the contents of this AppImage \n"
-            "if you run it with the --appimage-extract option. \n"
-            "See https://github.com/AppImage/AppImageKit/wiki/FUSE \n"
-            "for more information";
+            title = "Cannot mount squashfs, make sure you have fusermount in your path.";
+            body = "If everything fails, use --squashfs-extract to extract in the current directory";
             printf("\n%s\n", title);
             printf("%s\n", body);
         };
@@ -1156,9 +1058,9 @@ int main(int argc, char *argv[]) {
             setenv( "OWD", cwd, 1 );
         }
 
-        char filename[mount_dir_size + 8]; /* enough for mount_dir + "/AppRun" */
+        char filename[mount_dir_size + 8]; /* enough for mount_dir + "/spack" */
         strcpy (filename, mount_dir);
-        strcat (filename, "/AppRun");
+        strcat (filename, "/spack");
 
         /* TODO: Find a way to get the exit status and/or output of this */
         execv (filename, real_argv);

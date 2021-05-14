@@ -1,5 +1,5 @@
 CC            = gcc
-CFLAGS        = -std=gnu99 -Os -D_FILE_OFFSET_BITS=64 -ffunction-sections -fdata-sections -Wl,--gc-sections
+CFLAGS        = -std=gnu99 -Os -D_FILE_OFFSET_BITS=64 -ffunction-sections -fdata-sections -Wl,--gc-sections -static
 STRIP         = strip
 MAGIC         = echo "8: 414902" | xxd -r -
 MKDIR         = mkdir -p

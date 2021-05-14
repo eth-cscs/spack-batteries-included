@@ -15,7 +15,7 @@ spack:
   - squashfs +gzip +zstd +lz4 +lzo +xz default_compression=zstd
   - tar
   - unzip
-  - xz ~shared
+  - xz libs=static
   - zstd ~shared +programs +multithread
   concretization: together
   view: /build/6_spack/view
@@ -32,9 +32,9 @@ spack:
     zlib:
       variants: ~shared
     lzo:
-      variants: ~shared
+      variants: libs=static
     lz4:
-      variants: ~shared
+      variants: libs=static
     cmake:
       externals:
       - spec: cmake@3.20.1

@@ -2,8 +2,9 @@ spack:
   specs:
   
   # Build both for libfuse 2 and 3.
-  - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@:3
+  - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@:3 default_library=static
   - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@2.9.9
+    default_library=static
   concretization: separately
   view:
     fuse2:

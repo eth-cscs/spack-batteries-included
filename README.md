@@ -18,7 +18,7 @@ with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `
 `git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
 `zstd` and their dependencies.
 
-When you run `./spack.x [args]` it will use `fusermount` (through libfuse) to
+When you run `./spack.x [args]` it will use `fusermount` to
 mount this squashfs file in a temporary directory, and then execute the
 entrypoint executable [AppRun](bootstrap-spack/AppRun).
 
@@ -34,7 +34,7 @@ The URL above gives you a rolling release of Spack's develop branch, which is up
 hourly. The exact commit SHA is included as a file and can be retrieved like this:
 
 ```console
-$ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
+$ ./spack.x --squashfs-extract spack_sha && cat spack/spack_sha
 [prints the Spack commit sha]
 ```
 
@@ -49,13 +49,9 @@ $ ./spack.x --appimage-extract spack_sha && cat squashfs-root/spack_sha
 - Gentoo
 - Windows Subsystem for Linux 2 with any of the above distro's.
 
-The system dependencies are glibc 2.17 and above and FUSE 2. If your system
-supports rootless containers it likely has FUSE installed already! We can't
-statically link libfuse because it [calls a setuid executable with a hard-coded path](https://github.com/libfuse/libfuse/blob/f4eaff6af0be41f48368213bd72161c2c092a50f/lib/mount.c#L117-L121).
-
-Note: libfuse3 is supported too, but I have to polish the build script a bit.
-
-TODO: The [AppRun](bootstrap-spack/AppRun) file should be replaced with a static executable, as it currently adds a dependency on `sh` and `readlink`.
+The system dependencies are glibc 2.17 and above and optionally the fusermount
+executable. If your system supports rootless containers it likely has fusermount
+installed already!
 
 ## Differences from AppImage runtime
 - it uses `zstd` for good compression;
@@ -65,32 +61,8 @@ TODO: The [AppRun](bootstrap-spack/AppRun) file should be replaced with a static
 
 ## Caveats
 **immutability** The squashfs mountpoint is a readonly folder, meaning that
-spack can't write to spack/{var,opt} folders. Therefore, you'll have to setup
-some config to make spack not write to those paths. The easiest way is to just
-use a single environment `spack.yaml` file, like this:
-
-```yaml
-spack:
-  specs:
-  - your-spec
-  - and-another-spec
-  view: ./view               # not required but useful sometimes
-  config:
-    concretizer: clingo      # clingo is included in spack.x
-    module_roots:
-      tcl: ./tcl_modules     # avoid writing to readonly mountpoint
-      lmod: ./lmod_modules   # avoid writing to readonly mountpoint
-    install_tree:
-      root: ./install        # avoid writing to readonly mountpoint
-```
-
-And then you run `spack.x` like this:
-
-```console
-$ ls
-spack.yaml spack.x
-$ ./spack.x -e . install
-```
+spack can't write to spack/{var,opt} folders. spack.x is configured to use some
+non-standard directories, see `spack.x config blame config` for details.
 
 Note, spack.x applies [this patch](https://github.com/spack/spack/pull/20158/)
 to ensure that log files are written to the `config:misc_cache` folder.
@@ -101,44 +73,39 @@ and `GIT_SSL_CAPATH` variables to a list of common paths. This seems to work fin
 on most systems.
 
 If your certificates are in a non-standard location, point `SSL_CERT_DIR`
-and `GIT_SSL_CAPATH` to it.
+and `GIT_SSL_CAPATH` to it, or in some cases `SSL_CERT_FILE` and `GIT_SSL_CERT`.
 
-## My system doesn't have libfuse, what now?
+## My system doesn't have fusermount, what now?
 
-libfuse is used to mount a squashfs file included in the binary. If you don't
-want that, you can download the squashfs file and extract it.
+fusermount is used to mount a squashfs file included in the binary. If you don't
+want that, you can just extract it:
 
 ```
-$ wget https://github.com/haampie/spack-batteries-included/releases/download/develop/spack.squashfs
-$ unsquashfs spack.squashfs
-$ ./squashfs-root/AppRun 
+$ ./spack.x --squashfs-extract
+$ ./spack/spack
 usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
 ```
 
-but working with the extracted `squashfs-root` folder can come with a large
+but working with the extracted `spack` folder can come with a large
 performance penalty, especially on Lustre filesystems in HPC centers.
 
 ## Can I run spack.x inside a container?
 
-Yes, but please don't! The reason is that spack.x needs to call fusermount
-through libfuse. Since fusermount is a setuid binary, you will need to run a
-privileged container, which is never a good idea.
+Yes, but please don't! Since fusermount is a setuid binary, you will need to
+run a privileged container, which is never a good idea.
 
 The recommended way to run spack.x inside a container is to just extract it:
 
 ```console
-$ ./spack.x --appimage-extract
-$ docker run -it -v $PWD/squashfs-root:/spack ubuntu:18.04
-# ln -s /spack/AppRun /bin/spack
-# spack --version
+$ spack.x --squashfs-extract
 ```
 
-If you insist on running spack.x in Docker, this is how to do it:
+If you insist on running spack.x in Docker, this is one way to do it:
 
 ```console
 $ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack.x ubuntu:18.04
 # apt-get update && apt-get install fuse
-# ./spack.x --version
+# spack.x --version
 ```
 
 ## Running an executable shipped with spack.x directly
@@ -148,7 +115,7 @@ of invoking spack (the default entrypoint), try this:
 
 ```console
 $ NO_ENTRYPOINT= ./spack.x which python
-/tmp/.mount_spack.h0zr1h/view/bin//python
+/tmp/.mount_spack.h0zr1h/view/bin/python
 ```
 
 --------------------------------------------------------------------------------

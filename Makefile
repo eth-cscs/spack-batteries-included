@@ -42,21 +42,21 @@ rootfs-with-spack: rootfs
 	$(UNSHARE) spack -e /build/6_spack gc -y
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "*.a" | xargs rm -f'
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
-	$(UNSHARE) make_relative_env /build/6_spack view install
+	$(UNSHARE) make_relative_env /build/6_spack .
 	$(UNSHARE) prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test
 	$(UNSHARE) fix_file /build/6_spack/view/bin/file
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ view/ ._view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub
 # Notice, we apply the patch from https://github.com/spack/spack/pull/20158/
 bump_spack: 6_spack
-	$(UNSHARE) rm -rf /build/6_spack/spack
-	$(UNSHARE) mkdir /build/6_spack/spack
-	$(UNSHARE) bash -c 'curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /build/6_spack/spack'
-	$(UNSHARE) patch -p1 -d /build/6_spack/spack -i /build/6_spack/20158.patch
-	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/spack/etc/spack/
+	$(UNSHARE) rm -rf /build/6_spack/spack_src
+	$(UNSHARE) mkdir /build/6_spack/spack_src
+	$(UNSHARE) bash -c 'curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /build/6_spack/spack_src'
+	$(UNSHARE) patch -p1 -d /build/6_spack/spack_src -i /build/6_spack/20158.patch
+	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/spack_src/etc/spack/
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./AppRun python -m compileall spack/ install/ view/ 1> /dev/null || true'
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ view/ ._view/ 1> /dev/null || true'
 
 squashfs: 6_spack
 	$(UNSHARE) rm -f /build/output/spack-$(TARGET).squashfs

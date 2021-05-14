@@ -1,3 +1,8 @@
+v2.0.0
+- The spack.x runtime binary is now an entirely static exectuable, which means
+  that you can use spack.x on systems without fuse, by running
+  `spack.x --squashfs-extract`.
+
 v1.6.3
 - Don't set the MAGIC environment variable so that libtool can use its
   hard-coded /usr/bin/file executable. `file` is still shipped, but the magic

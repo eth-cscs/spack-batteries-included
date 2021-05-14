@@ -11,23 +11,6 @@ $ wget -qO spack.x https://github.com/haampie/spack-batteries-included/releases/
 $ chmod +x spack.x
 $ ./spack.x install zstd +programs ~shared build_type=Release
 ```
-
-## How does it work?
-`spack.x` consists of a slightly hacked version of the AppImage runtime concatenated
-with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
-`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
-`zstd` and their dependencies.
-
-When you run `./spack.x [args]` it will use `fusermount` to
-mount this squashfs file in a temporary directory, and then execute the
-entrypoint executable [spack](build/6_spack/spack).
-
-The `spack` executable sets some environment variables like `PATH` and
-`DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
-executes `python3 spack_src/bin/spack [args]`.
-
-When the command is done running, the runtime unmounts the squashfs file again.
-
 ## What version of Spack is shipped?
 
 The URL above gives you a rolling release of Spack's develop branch, which is updated
@@ -44,7 +27,7 @@ $ spack.x --squashfs-extract spack_sha && cat spack/spack_sha
 - Ubuntu 14.04 and above
 - Debian 8 and above
 - Fedora 20 and above
-- OpenSUSE 13 and above
+- SUSE Linux 13 and above
 - Arch Linux
 - Gentoo
 - Windows Subsystem for Linux 2 with any of the above distro's.
@@ -52,6 +35,36 @@ $ spack.x --squashfs-extract spack_sha && cat spack/spack_sha
 The system dependencies are `glibc 2.17` and above and optionally the `fusermount`
 executable. If your system supports rootless containers it likely has `fusermount`
 installed already!
+
+## How does it work?
+`spack.x` consists of a modified version of the AppImage runtime concatenated
+with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
+`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
+`zstd` and their dependencies.
+
+When you run `./spack.x [args]` it will use `fusermount` to
+mount this squashfs file in a temporary directory, and then execute the
+entrypoint executable [spack](build/6_spack/spack).
+
+The `spack` executable sets some environment variables like `PATH` and
+`DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
+executes `python3 spack_src/bin/spack [args]`.
+
+When the command is done running, the runtime unmounts the squashfs file again.
+
+## My system doesn't allow me to use `fusermount`, what now?
+
+`fusermount` is used to mount a squashfs file included in the binary. If you
+don't want that, you can just extract it:
+
+```
+$ spack.x --squashfs-extract
+$ ./spack/spack
+usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
+```
+
+but working with the extracted `spack` folder can come with a performance
+penalty on shared filesystems in HPC centers.
 
 ## Differences and improvements over AppImage runtime
 - spack.x uses `zstd` for faster decompression;
@@ -74,20 +87,6 @@ on most systems.
 
 If your certificates are in a non-standard location, point `SSL_CERT_DIR`
 and `GIT_SSL_CAPATH` to it, or in some cases `SSL_CERT_FILE` and `GIT_SSL_CERT`.
-
-## My system doesn't have `fusermount`, what now?
-
-`fusermount` is used to mount a squashfs file included in the binary. If you
-don't want that, you can just extract it:
-
-```
-$ spack.x --squashfs-extract
-$ ./spack/spack
-usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
-```
-
-but working with the extracted `spack` folder can come with a performance
-penalty on shared filesystems in HPC centers.
 
 ## Can I run spack.x inside a container?
 

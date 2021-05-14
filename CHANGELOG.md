@@ -1,3 +1,9 @@
+v2.1.0
+- spack.x now includes ca-certificates-mozilla's pem file, so that https should
+  work out of the box without further configuration. If you want to use system
+  certificates, set `SSL_CERT_DIR`, `SSL_CERT_FILE`, `GIT_SSL_CAPATH` or
+  `GIT_SSL_CERT` before invoking spack.x.
+
 v2.0.0
 - The spack.x runtime binary is now an entirely static exectuable, which means
   that you can use spack.x on systems without fuse, by running

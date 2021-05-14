@@ -72,7 +72,7 @@ penalty on shared filesystems in HPC centers.
 - spack.x can extract itself without libfuse.so or libfuse3.so present on the
   system.
 
-## Caveats
+## Troubleshooting
 **immutability** The squashfs mountpoint is a readonly folder, meaning that
 spack can't write to spack/{var,opt} folders. spack.x is configured to use some
 non-standard directories, see `spack.x config blame config` for details.
@@ -80,13 +80,9 @@ non-standard directories, see `spack.x config blame config` for details.
 Note, spack.x applies [this patch](https://github.com/spack/spack/pull/20158/)
 to ensure that log files are written to the `config:misc_cache` folder.
 
-**openssl**: curl/git/openssl have to use system certificates. I'm not making any
-assumptions on the system, but rather I'm just setting the `SSL_CERT_DIR`
-and `GIT_SSL_CAPATH` variables to a list of common paths. This seems to work fine
-on most systems.
-
-If your certificates are in a non-standard location, point `SSL_CERT_DIR`
-and `GIT_SSL_CAPATH` to it, or in some cases `SSL_CERT_FILE` and `GIT_SSL_CERT`.
+**openssl**: By default spack.x uses `ca-certificates-mozilla` for downloading
+package sources over https. If you somehow need to use system certificates,
+set `SSL_CERT_DIR` and `GIT_SSL_CAPATH` or `SSL_CERT_FILE` and `GIT_SSL_CERT`.
 
 ## Can I run spack.x inside a container?
 

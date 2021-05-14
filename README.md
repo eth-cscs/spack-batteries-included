@@ -20,11 +20,11 @@ with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `
 
 When you run `./spack.x [args]` it will use `fusermount` to
 mount this squashfs file in a temporary directory, and then execute the
-entrypoint executable [AppRun](bootstrap-spack/AppRun).
+entrypoint executable [spack](build/6_spack/spack).
 
-The AppRun executable sets some environment variables like `PATH` and
+The `spack` executable sets some environment variables like `PATH` and
 `DL_LIBRARY_PATH` to the bin and lib folders of the squashfs file, and then it
-executes `python3 path/to/copy/of/spack/bin/spack [args]`.
+executes `python3 spack_src/bin/spack [args]`.
 
 When the command is done running, the runtime unmounts the squashfs file again.
 
@@ -34,7 +34,7 @@ The URL above gives you a rolling release of Spack's develop branch, which is up
 hourly. The exact commit SHA is included as a file and can be retrieved like this:
 
 ```console
-$ ./spack.x --squashfs-extract spack_sha && cat spack/spack_sha
+$ spack.x --squashfs-extract spack_sha && cat spack/spack_sha
 [prints the Spack commit sha]
 ```
 
@@ -49,15 +49,15 @@ $ ./spack.x --squashfs-extract spack_sha && cat spack/spack_sha
 - Gentoo
 - Windows Subsystem for Linux 2 with any of the above distro's.
 
-The system dependencies are glibc 2.17 and above and optionally the fusermount
-executable. If your system supports rootless containers it likely has fusermount
+The system dependencies are `glibc 2.17` and above and optionally the `fusermount`
+executable. If your system supports rootless containers it likely has `fusermount`
 installed already!
 
-## Differences from AppImage runtime
-- it uses `zstd` for good compression;
-- it dynamically links against libfuse instead of dlopen'ing it, this is
-  to support the latest version of squashfuse without patching it everywhere.
-
+## Differences and improvements over AppImage runtime
+- spack.x uses `zstd` for faster decompression;
+- spack.x has an entirely static binary for the runtime
+- spack.x can extract itself without libfuse.so or libfuse3.so present on the
+  system.
 
 ## Caveats
 **immutability** The squashfs mountpoint is a readonly folder, meaning that
@@ -75,36 +75,37 @@ on most systems.
 If your certificates are in a non-standard location, point `SSL_CERT_DIR`
 and `GIT_SSL_CAPATH` to it, or in some cases `SSL_CERT_FILE` and `GIT_SSL_CERT`.
 
-## My system doesn't have fusermount, what now?
+## My system doesn't have `fusermount`, what now?
 
-fusermount is used to mount a squashfs file included in the binary. If you don't
-want that, you can just extract it:
+`fusermount` is used to mount a squashfs file included in the binary. If you
+don't want that, you can just extract it:
 
 ```
-$ ./spack.x --squashfs-extract
+$ spack.x --squashfs-extract
 $ ./spack/spack
 usage: spack [-hkV] [--color {always,never,auto}] COMMAND ...
 ```
 
-but working with the extracted `spack` folder can come with a large
-performance penalty, especially on Lustre filesystems in HPC centers.
+but working with the extracted `spack` folder can come with a performance
+penalty on shared filesystems in HPC centers.
 
 ## Can I run spack.x inside a container?
 
-Yes, but please don't! Since fusermount is a setuid binary, you will need to
+Yes, but please don't! Since `fusermount` is a setuid binary, you will need to
 run a privileged container, which is never a good idea.
 
 The recommended way to run spack.x inside a container is to just extract it:
 
 ```console
 $ spack.x --squashfs-extract
+$ ./spack/spack --version
 ```
 
 If you insist on running spack.x in Docker, this is one way to do it:
 
 ```console
 $ sudo docker run --privileged --device /dev/fuse -it -v $PWD/spack.x:/bin/spack.x ubuntu:18.04
-# apt-get update && apt-get install fuse
+# apt update && apt install fuse # install fusermount
 # spack.x --version
 ```
 
@@ -114,7 +115,7 @@ If you want to run an executable shipped with `spack.x` directly instead
 of invoking spack (the default entrypoint), try this:
 
 ```console
-$ NO_ENTRYPOINT= ./spack.x which python
+$ NO_ENTRYPOINT= spack.x which python
 /tmp/.mount_spack.h0zr1h/view/bin/python
 ```
 

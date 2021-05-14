@@ -18,7 +18,7 @@ fi
 
 echo "Using release id $release_id"
 
-for name in spack-$ARCH.x spack-$ARCH-fuse3.x spack-$ARCH.squashfs
+for name in "spack-$ARCH.x" "spack-$ARCH-fuse3.x" "spack-$ARCH.squashfs"
 do
     # Get the asset url
     asset_url="$(< release_info.json jq -r --arg name "$name" '.[] | select(.tag_name=="develop") | .assets[] | select(.name==$name) | .url')"
@@ -27,18 +27,18 @@ do
     if [ -n "$asset_url" ]; then
         echo "Deleting remote $name"
         curl -fsS \
-        -X DELETE \
-        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-        -H "Accept: application/vnd.github.v3+json" \
-        "$asset_url"
+             -X DELETE \
+             -H "Authorization: Bearer $GITHUB_TOKEN" \
+             -H "Accept: application/vnd.github.v3+json" \
+             "$asset_url"
     fi
 
     # Upload a new one.
     echo "Uploading $name"
     curl -fsS \
-        -X POST \
-        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-        -H "Content-Type: application/octet-stream" \
-        --data-binary "@$name" \
-        "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
+         -X POST \
+         -H "Authorization: Bearer $GITHUB_TOKEN" \
+         -H "Content-Type: application/octet-stream" \
+         --data-binary "@$name" \
+         "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
 done

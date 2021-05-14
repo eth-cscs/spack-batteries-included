@@ -15,3 +15,5 @@ jobs:
         run: .github/workflows/update.sh
       - name: Upload release assets
         run: .github/workflows/release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

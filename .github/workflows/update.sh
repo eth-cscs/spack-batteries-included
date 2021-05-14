@@ -15,13 +15,13 @@ echo "Downloading spack-$ARCH.x from version $BASE_VERSION"
 curl -LfSs -o "runtime-$ARCH-fuse2"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse2"
 curl -LfSs -o "runtime-$ARCH-fuse3"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse3"
 curl -LfSs -o "spack-$ARCH-old.x"    "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-$ARCH.x"
-curl -LSsf -o hack-wrapper.patch   "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/patches/hack-wrapper.patch"
-curl -LSsf -o 20158.patch          "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
-curl -LSsf -o config.yaml          "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
+curl -LSsf -o hack-wrapper.patch     "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/patches/hack-wrapper.patch"
+curl -LSsf -o 20158.patch            "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/20158.patch"
+curl -LSsf -o config.yaml            "https://github.com/haampie/spack-batteries-included/raw/$BASE_VERSION/build/6_spack/config.yaml"
 
-echo "5221ade473885cc49c413024a0689dc27f08f00cbce0b54301672809bbaf83a2 runtime-$ARCH-fuse2"  | sha256sum --check
-echo "82017d63610a9a9ce8a76ff30cbdb1c6cb7a722d13eb809aa562253670baecab runtime-$ARCH-fuse3"  | sha256sum --check
-echo "3b84335f0ca34f22be01da675adac4e82f5443d41de80a1caeb7ab403aca0441 spack-$ARCH-old.x"    | sha256sum --check
+echo "9034e1ca5d8ac9b9cefac2630fc8b0cca0a5e7db07303b94723b60438c9c5a41 runtime-$ARCH-fuse2"  | sha256sum --check
+echo "df16b30988b6aa95c8f6a8356dd5e593b74c7e831eed87395f58f20af9da8b41 runtime-$ARCH-fuse3"  | sha256sum --check
+echo "dde176c26d5925f211cb42b15ec59a69543fbd53b501094ae4b089e470ad613a spack-$ARCH-old.x"    | sha256sum --check
 echo "1c83a51b49cfbc4faf90b01ac944fedf47ad8a6528d45454503ded5bfa3ef97e hack-wrapper.patch"   | sha256sum --check
 echo "4e0624b1c4527429f36aa5cff12266b4611f228731e3a01be1f06e075daf6571 20158.patch"          | sha256sum --check
 echo "2783a5cb8d712bad1e1b6193d745cb56438f6a3e0b83638687df1f9e2b1cb206 config.yaml"          | sha256sum --check

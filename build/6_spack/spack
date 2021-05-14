@@ -6,14 +6,12 @@ HERE=${SELF%/*}
 # ugh, this is so annoying
 unset SPACK_LD_LIBRARY_PATH
 
-# todo: maybe just set SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt
-# or bundle our own certs?
 if [ -z ${SSL_CERT_DIR+x} ] && [ -z ${SSL_CERT_FILE+x} ]; then
-    export SSL_CERT_DIR="/etc/ssl/certs:/etc/pki/tls/certs:/usr/share/ssl/certs:/usr/local/share/certs:/usr/local/etc/ssl"
+    export SSL_CERT_FILE="$HERE/view/share/cacert.pem"
 fi
 
 if [ -z ${GIT_SSL_CAPATH+x} ] && [ -z ${GIT_SSL_CERT+x} ]; then
-    export GIT_SSL_CAPATH="/etc/ssl/certs:/etc/pki/tls/certs:/usr/share/ssl/certs:/usr/local/share/certs:/usr/local/etc/ssl"
+    export GIT_SSL_CERT="$HERE/view/share/cacert.pem"
 fi
 
 # make our binaries and libs important

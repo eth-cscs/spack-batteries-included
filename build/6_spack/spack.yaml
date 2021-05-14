@@ -1,7 +1,8 @@
 spack:
   specs:
-  - binutils ~gold ~ld ~nls ~gas
+  - binutils ~gold ~ld ~nls ~gas ~plugins libs=shared
   - bzip2 ~shared
+  - ca-certificates-mozilla
   - ccache
   - clingo-bootstrap@spack
   - curl

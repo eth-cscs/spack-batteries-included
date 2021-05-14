@@ -29,6 +29,7 @@ curl -Ls "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.
 
 patch -p1 -d /opt/spack -i /build/patches/hack-wrapper.patch
 
+patch -p1 -d /opt/spack -i /build/patches/certs.patch
 patch -p1 -d /opt/spack -i /build/patches/curl.patch
 patch -p1 -d /opt/spack -i /build/patches/gettext.patch
 patch -p1 -d /opt/spack -i /build/patches/squashfuse.patch

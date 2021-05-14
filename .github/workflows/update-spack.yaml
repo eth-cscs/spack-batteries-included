@@ -14,4 +14,4 @@ jobs:
       - name: Create new spack.x
         run: .github/workflows/update.sh
       - name: Upload release assets
-        run: .github/worksflows/release.sh
+        run: .github/workflows/release.sh

@@ -9,6 +9,8 @@ jobs:
   bundle:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Create new spack.x
         run: .github/workflows/update.sh
       - name: Upload release assets

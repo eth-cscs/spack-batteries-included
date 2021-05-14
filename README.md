@@ -2,9 +2,9 @@
 
 # 🔋 Spack with batteries included (linux/x86_64)
 
-[Spack](https://github.com/spack/spack) is a build tool, and build tools should be trivial to install.
+[Spack](https://github.com/spack/spack) is a package manager, and package managers should be trivial to install. 
 
-This repo offers a single file executable for Spack:
+This repo offers a single, static executable for Spack:
 
 ```console
 $ wget -qO spack.x https://github.com/haampie/spack-batteries-included/releases/download/develop/spack-x86_64.x
@@ -42,7 +42,7 @@ with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `
 `git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
 `zstd` and their dependencies.
 
-When you run `./spack.x [args]` it will use `fusermount` to
+When you run `spack.x [args]` it will use `fusermount` to
 mount this squashfs file in a temporary directory, and then execute the
 entrypoint executable [spack](build/6_spack/spack).
 

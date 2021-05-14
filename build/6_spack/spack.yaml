@@ -55,9 +55,9 @@ spack:
         f77: null
         fc: null
       flags:
-        cflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+        cflags: -s -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
           -Wl,--gc-sections
-        cxxflags: -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
+        cxxflags: -s -static-libstdc++ -static-libgcc -fPIC -ffunction-sections -fdata-sections
           -Wl,--gc-sections
         ldflags: -Wl,--gc-sections
       operating_system: centos7

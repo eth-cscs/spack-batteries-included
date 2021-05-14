@@ -43,9 +43,17 @@ rootfs-with-spack: rootfs
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "*.a" | xargs rm -f'
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
 	$(UNSHARE) make_relative_env /build/6_spack .
-	$(UNSHARE) prune /build/6_spack view/share/aclocal view/share/doc view/share/info view/share/locale view/share/man view/include view/share/gettext/archive.dir.tar.gz view/lib/python3.8/test
-	$(UNSHARE) fix_file /build/6_spack/view/bin/file
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ view/ ._view/ 1> /dev/null || true'
+	$(UNSHARE) prune /build/6_spack \
+		$$(readlink build/6_spack/view)/share/aclocal \
+		$$(readlink build/6_spack/view)/share/doc \
+		$$(readlink build/6_spack/view)/share/info \
+		$$(readlink build/6_spack/view)/share/locale \
+		$$(readlink build/6_spack/view)/share/man \
+		$$(readlink build/6_spack/view)/include \
+		$$(readlink build/6_spack/view)/share/gettext/archive.dir.tar.gz \
+		$$(readlink build/6_spack/view)/lib/python3.8/test
+	$(UNSHARE) fix_file /build/6_spack/$$(readlink build/6_spack/view)/bin/file
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ ._view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub
 # Notice, we apply the patch from https://github.com/spack/spack/pull/20158/
@@ -56,7 +64,7 @@ bump_spack: 6_spack
 	$(UNSHARE) patch -p1 -d /build/6_spack/spack_src -i /build/6_spack/20158.patch
 	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/spack_src/etc/spack/
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
-	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ view/ ._view/ 1> /dev/null || true'
+	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ ._view/ 1> /dev/null || true'
 
 squashfs: 6_spack
 	$(UNSHARE) rm -f /build/output/spack-$(TARGET).squashfs
@@ -80,19 +88,19 @@ clean:
 	rm -f build/spack.x build/spack.squashfs
 
 clean-1_ccache:
-	rm -rf build/1_ccache/install build/1_ccache/spack.lock build/1_ccache/.spack-env build/1_ccache/view
+	rm -rf build/1_ccache/install build/1_ccache/spack.lock build/1_ccache/.spack-env build/1_ccache/view build/1_ccache/._view
 
 clean-2_compiler:
-	rm -rf build/2_compiler/install build/2_compiler/spack.lock build/2_compiler/.spack-env build/2_compiler/view
+	rm -rf build/2_compiler/install build/2_compiler/spack.lock build/2_compiler/.spack-env build/2_compiler/view build/2_compiler/._view
 
 clean-3_environment:
 	rm -rf build/3_environment/make_relative_env build/3_environment/prune
 
 clean-4_more_tools:
-	rm -rf build/4_more_tools/install build/4_more_tools/spack.lock build/4_more_tools/.spack-env build/4_more_tools/view
+	rm -rf build/4_more_tools/install build/4_more_tools/spack.lock build/4_more_tools/.spack-env build/4_more_tools/view build/4_more_tools/._view
 
 clean-5_runtime:
-	rm -rf build/5_runtime/install build/5_runtime/spack.lock build/5_runtime/.spack-env build/5_runtime/view
+	rm -rf build/5_runtime/install build/5_runtime/spack.lock build/5_runtime/.spack-env build/5_runtime/view build/5_runtime/._view
 
 clean-6_spack:
-	rm -rf build/6_spack/install build/6_spack/spack.lock build/6_spack/.spack-env build/6_spack/view
+	rm -rf build/6_spack/install build/6_spack/spack.lock build/6_spack/.spack-env build/6_spack/view build/6_spack/._view

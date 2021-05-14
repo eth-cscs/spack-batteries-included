@@ -28,7 +28,7 @@ export PATH="$PWD:$PATH"
     mkdir -p "$ARCH" && cd "$ARCH" || exit 1
 
     echo "Extracting spack-$ARCH.x $BASE_VERSION"
-    "spack-$ARCH-old.x" --squashfs-extract
+    "spack-$ARCH-old.x" --squashfs-extract 1> /dev/null
     cd spack || exit 1
     rm -rf spack_src && mkdir spack_src
 
@@ -37,9 +37,9 @@ export PATH="$PWD:$PATH"
     echo "$SPACK_SHA" > spack_sha
 
     # Apply the patch that allows you to drop specifying --log-file
-    patch -p1 -d spack_src -i "build/6_spack/20158.patch"
-    patch -p1 -d spack_src -i "build/patches/hack-wrapper.patch"
-    cp "build/6_spack/config.yaml" spack_src/etc/spack/
+    patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/6_spack/20158.patch"
+    patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/patches/hack-wrapper.patch"
+    cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" spack_src/etc/spack/
 
     find . '(' -iname '*.pyc' -o -iname '__pycache__' ')' -print0 | xargs --null rm -rf
     NO_ENTRYPOINT='' "spack-$ARCH-old.x" python -m compileall -q spack_src/ install/ view/ ._view/ || true

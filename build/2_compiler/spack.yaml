@@ -1,6 +1,6 @@
 spack:
   specs:
-  - gcc@10.3.0 ~bootstrap +strip +binutils languages=c,c++,go
+  - gcc@10.3.0 %gcc@:4 ~bootstrap +strip +binutils languages=c,c++,go
   view: /build/2_compiler/view
   config:
     source_cache: /build/source_cache
@@ -16,7 +16,7 @@ spack:
     openssl:
       variants: ~systemcerts
     binutils:
-      variants: +ld +plugins +gas ~lto ~gold ~nls
+      variants: +ld +plugins +gas ~lto ~gold ~nls libs=shared
     zstd:
       variants: ~multithread ~shared
     berkeley-db:

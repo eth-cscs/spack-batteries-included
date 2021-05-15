@@ -1,6 +1,6 @@
 spack:
   specs:
-  - ccache
+  - ccache @gcc:5
   view: /build/1_ccache/view
   config:
     source_cache: /build/source_cache
@@ -14,3 +14,16 @@ spack:
       buildable: false
     zstd:
       variants: +multithread ~shared
+  compilers:
+  - compiler:
+      spec: gcc@4.8.5
+      paths:
+        cc: /bin/gcc
+        cxx: /bin/g++
+        f77: null
+        fc: null
+      flags: {}
+      operating_system: centos7
+      modules: []
+      environment: {}
+      extra_rpaths: []

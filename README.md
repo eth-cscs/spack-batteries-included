@@ -68,9 +68,8 @@ penalty on shared filesystems in HPC centers.
 
 ## Differences and improvements over AppImage runtime
 - spack.x uses `zstd` for faster decompression;
-- spack.x has an entirely static binary for the runtime
-- spack.x can extract itself without libfuse.so or libfuse3.so present on the
-  system.
+- spack.x itself is an entirely static binary;
+- spack.x does not need to dlopen libfuse.so.
 
 ## Troubleshooting
 **immutability** The squashfs mountpoint is a readonly folder, meaning that

@@ -1,0 +1,1631 @@
+From 5702a192eedbf54800c10974c83aa44acc8a4c92 Mon Sep 17 00:00:00 2001
+From: Harmen Stoppels <harmenstoppels@gmail.com>
+Date: Mon, 17 May 2021 13:13:03 +0200
+Subject: [PATCH] Revert "Separable module configurations (#22588)"
+
+This reverts commit cefbe48c89209dc3df654795644973b1885cdea4.
+---
+ etc/spack/defaults/config.yaml                |   7 +
+ etc/spack/defaults/darwin/modules.yaml        |  11 +-
+ etc/spack/defaults/linux/modules.yaml         |  11 +-
+ etc/spack/defaults/modules.yaml               |  20 +--
+ lib/spack/spack/cmd/env.py                    |   3 -
+ lib/spack/spack/cmd/install.py                |  10 +-
+ lib/spack/spack/cmd/modules/__init__.py       |  40 +----
+ lib/spack/spack/cmd/modules/lmod.py           |   3 +-
+ lib/spack/spack/config.py                     |  13 +-
+ lib/spack/spack/environment.py                |  49 ++----
+ lib/spack/spack/hooks/__init__.py             |   4 -
+ .../spack/hooks/module_file_generation.py     |  39 ++---
+ lib/spack/spack/main.py                       |   4 +-
+ lib/spack/spack/modules/common.py             |  97 ++++--------
+ lib/spack/spack/modules/lmod.py               |  43 +++---
+ lib/spack/spack/modules/tcl.py                |  24 ++-
+ lib/spack/spack/schema/modules.py             | 139 +++++++-----------
+ lib/spack/spack/subprocess_context.py         |   6 -
+ lib/spack/spack/test/cmd/env.py               |  79 +---------
+ lib/spack/spack/test/cmd/module.py            |   8 +-
+ lib/spack/spack/test/config.py                |   9 +-
+ lib/spack/spack/test/conftest.py              |  10 +-
+ lib/spack/spack/test/data/config/config.yaml  |   3 +
+ lib/spack/spack/test/data/config/modules.yaml |   5 +-
+ .../data/modules/lmod/alter_environment.yaml  |   2 +-
+ .../test/data/modules/lmod/with_view.yaml     |   6 -
+ .../data/modules/tcl/alter_environment.yaml   |   2 +-
+ .../tcl/invalid_token_in_env_var_name.yaml    |   2 +-
+ lib/spack/spack/test/modules/common.py        |   2 +-
+ lib/spack/spack/test/modules/conftest.py      |   8 +-
+ lib/spack/spack/test/modules/lmod.py          |  37 -----
+ lib/spack/spack/test/modules/tcl.py           |  23 +--
+ lib/spack/spack/user_environment.py           |   4 +-
+ share/spack/spack-completion.bash             |   6 +-
+ 34 files changed, 208 insertions(+), 521 deletions(-)
+ delete mode 100644 lib/spack/spack/test/data/modules/lmod/with_view.yaml
+
+diff --git a/etc/spack/defaults/config.yaml b/etc/spack/defaults/config.yaml
+index 2400686e60d3..61c23f42dfb1 100644
+--- a/etc/spack/defaults/config.yaml
++++ b/etc/spack/defaults/config.yaml
+@@ -33,6 +33,13 @@ config:
+   template_dirs:
+     - $spack/share/spack/templates
+ 
++
++  # Locations where different types of modules should be installed.
++  module_roots:
++    tcl:    $spack/share/spack/modules
++    lmod:   $spack/share/spack/lmod
++
++
+   # Temporary locations Spack can try to use for builds.
+   #
+   # Recommended options are given below.
+diff --git a/etc/spack/defaults/darwin/modules.yaml b/etc/spack/defaults/darwin/modules.yaml
+index 3bfca8c6131b..a90cc24c6030 100644
+--- a/etc/spack/defaults/darwin/modules.yaml
++++ b/etc/spack/defaults/darwin/modules.yaml
+@@ -14,9 +14,8 @@
+ #   ~/.spack/modules.yaml
+ # -------------------------------------------------------------------------
+ modules:
+-  default:
+-    prefix_inspections:
+-      lib:
+-        - DYLD_FALLBACK_LIBRARY_PATH
+-      lib64:
+-        - DYLD_FALLBACK_LIBRARY_PATH
++  prefix_inspections:
++    lib:
++      - DYLD_FALLBACK_LIBRARY_PATH
++    lib64:
++      - DYLD_FALLBACK_LIBRARY_PATH
+diff --git a/etc/spack/defaults/linux/modules.yaml b/etc/spack/defaults/linux/modules.yaml
+index 353a6ea9ab13..a86a4794f1fd 100644
+--- a/etc/spack/defaults/linux/modules.yaml
++++ b/etc/spack/defaults/linux/modules.yaml
+@@ -14,9 +14,8 @@
+ #   ~/.spack/modules.yaml
+ # -------------------------------------------------------------------------
+ modules:
+-  default:
+-    prefix_inspections:
+-      lib:
+-        - LD_LIBRARY_PATH
+-      lib64:
+-        - LD_LIBRARY_PATH
++  prefix_inspections:
++    lib:
++      - LD_LIBRARY_PATH
++    lib64:
++      - LD_LIBRARY_PATH
+diff --git a/etc/spack/defaults/modules.yaml b/etc/spack/defaults/modules.yaml
+index 4539dbc9c237..d6d245930c49 100644
+--- a/etc/spack/defaults/modules.yaml
++++ b/etc/spack/defaults/modules.yaml
+@@ -14,7 +14,8 @@
+ #   ~/.spack/modules.yaml
+ # -------------------------------------------------------------------------
+ modules:
+-  # Paths to check when creating modules for all module sets
++  enable:
++    - tcl
+   prefix_inspections:
+     bin:
+       - PATH
+@@ -33,17 +34,6 @@ modules:
+     '':
+       - CMAKE_PREFIX_PATH
+ 
+-  # These are configurations for the module set named "default"
+-  default:
+-    # Where to install modules
+-    roots:
+-      tcl:    $spack/share/spack/modules
+-      lmod:   $spack/share/spack/lmod
+-    # What type of modules to use
+-    enable:
+-      - tcl
+-
+-    # Default configurations if lmod is enabled
+-    lmod:
+-      hierarchy:
+-        - mpi
++  lmod:
++    hierarchy:
++      - mpi
+diff --git a/lib/spack/spack/cmd/env.py b/lib/spack/spack/cmd/env.py
+index c980366352e0..11b422a9bd95 100644
+--- a/lib/spack/spack/cmd/env.py
++++ b/lib/spack/spack/cmd/env.py
+@@ -363,9 +363,6 @@ def env_loads_setup_parser(subparser):
+     """list modules for an installed environment '(see spack module loads)'"""
+     subparser.add_argument(
+         'env', nargs='?', help='name of env to generate loads file for')
+-    subparser.add_argument(
+-        '-n', '--module-set-name', default='default',
+-        help='module set for which to generate load operations')
+     subparser.add_argument(
+         '-m', '--module-type', choices=('tcl', 'lmod'),
+         help='type of module system to generate loads for')
+diff --git a/lib/spack/spack/cmd/install.py b/lib/spack/spack/cmd/install.py
+index eb126460d285..53e924cb9e6b 100644
+--- a/lib/spack/spack/cmd/install.py
++++ b/lib/spack/spack/cmd/install.py
+@@ -261,7 +261,7 @@ def install_specs(cli_args, kwargs, specs):
+                     with env.write_transaction():
+                         specs_to_install.append(
+                             env.concretize_and_add(abstract, concrete))
+-                        env.write(regenerate=False)
++                        env.write(regenerate_views=False)
+ 
+             # Install the validated list of cli specs
+             if specs_to_install:
+@@ -338,7 +338,7 @@ def get_tests(specs):
+ 
+                     # save view regeneration for later, so that we only do it
+                     # once, as it can be slow.
+-                    env.write(regenerate=False)
++                    env.write(regenerate_views=False)
+ 
+             specs = env.all_specs()
+             if not args.log_file and not reporter.filename:
+@@ -352,9 +352,9 @@ def get_tests(specs):
+             tty.debug("Regenerating environment views for {0}"
+                       .format(env.name))
+             with env.write_transaction():
+-                # write env to trigger view generation and modulefile
+-                # generation
+-                env.write()
++                # It is not strictly required to synchronize view regeneration
++                # but doing so can prevent redundant work in the filesystem.
++                env.regenerate_views()
+             return
+         else:
+             msg = "install requires a package argument or active environment"
+diff --git a/lib/spack/spack/cmd/modules/__init__.py b/lib/spack/spack/cmd/modules/__init__.py
+index 3d6975801f61..7fbce3bb9d5c 100644
+--- a/lib/spack/spack/cmd/modules/__init__.py
++++ b/lib/spack/spack/cmd/modules/__init__.py
+@@ -13,7 +13,6 @@
+ from llnl.util import filesystem, tty
+ 
+ import spack.cmd
+-import spack.config
+ import spack.modules
+ import spack.repo
+ import spack.modules.common
+@@ -26,11 +25,6 @@
+ 
+ 
+ def setup_parser(subparser):
+-    subparser.add_argument(
+-        '-n', '--name',
+-        action='store', dest='module_set_name', default='default',
+-        help="Named module set to use from modules configuration."
+-    )
+     sp = subparser.add_subparsers(metavar='SUBCOMMAND', dest='subparser_name')
+ 
+     refresh_parser = sp.add_parser('refresh', help='regenerate module files')
+@@ -117,19 +111,6 @@ def one_spec_or_raise(specs):
+     return specs[0]
+ 
+ 
+-def check_module_set_name(name):
+-    modules_config = spack.config.get('modules')
+-    valid_names = set([key for key, value in modules_config.items()
+-                       if isinstance(value, dict) and value.get('enable', [])])
+-    if 'enable' in modules_config and modules_config['enable']:
+-        valid_names.add('default')
+-
+-    if name not in valid_names:
+-        msg = "Cannot use invalid module set %s." % name
+-        msg += "    Valid module set names are %s" % list(valid_names)
+-        raise spack.config.ConfigError(msg)
+-
+-
+ _missing_modules_warning = (
+     "Modules have been omitted for one or more specs, either"
+     " because they were blacklisted or because the spec is"
+@@ -140,7 +121,6 @@ def check_module_set_name(name):
+ 
+ def loads(module_type, specs, args, out=None):
+     """Prompt the list of modules associated with a list of specs"""
+-    check_module_set_name(args.module_set_name)
+     out = sys.stdout if out is None else out
+ 
+     # Get a comprehensive list of specs
+@@ -162,8 +142,7 @@ def loads(module_type, specs, args, out=None):
+     modules = list(
+         (spec,
+          spack.modules.common.get_module(
+-             module_type, spec, get_full_path=False,
+-             module_set_name=args.module_set_name, required=False))
++             module_type, spec, get_full_path=False, required=False))
+         for spec in specs)
+ 
+     module_commands = {
+@@ -198,7 +177,6 @@ def loads(module_type, specs, args, out=None):
+ 
+ def find(module_type, specs, args):
+     """Retrieve paths or use names of module files"""
+-    check_module_set_name(args.module_set_name)
+ 
+     single_spec = one_spec_or_raise(specs)
+ 
+@@ -212,14 +190,12 @@ def find(module_type, specs, args):
+     try:
+         modules = [
+             spack.modules.common.get_module(
+-                module_type, spec, args.full_path,
+-                module_set_name=args.module_set_name, required=False)
++                module_type, spec, args.full_path, required=False)
+             for spec in dependency_specs_to_retrieve]
+ 
+         modules.append(
+             spack.modules.common.get_module(
+-                module_type, single_spec, args.full_path,
+-                module_set_name=args.module_set_name, required=True))
++                module_type, single_spec, args.full_path, required=True))
+     except spack.modules.common.ModuleNotFoundError as e:
+         tty.die(e.message)
+ 
+@@ -233,16 +209,13 @@ def rm(module_type, specs, args):
+     """Deletes the module files associated with every spec in specs, for every
+     module type in module types.
+     """
+-    check_module_set_name(args.module_set_name)
+ 
+     module_cls = spack.modules.module_types[module_type]
+-    module_exist = lambda x: os.path.exists(
+-        module_cls(x, args.module_set_name).layout.filename)
++    module_exist = lambda x: os.path.exists(module_cls(x).layout.filename)
+ 
+     specs_with_modules = [spec for spec in specs if module_exist(spec)]
+ 
+-    modules = [module_cls(spec, args.module_set_name)
+-               for spec in specs_with_modules]
++    modules = [module_cls(spec) for spec in specs_with_modules]
+ 
+     if not modules:
+         tty.die('No module file matches your query')
+@@ -266,7 +239,6 @@ def refresh(module_type, specs, args):
+     """Regenerates the module files for every spec in specs and every module
+     type in module types.
+     """
+-    check_module_set_name(args.module_set_name)
+ 
+     # Prompt a message to the user about what is going to change
+     if not specs:
+@@ -291,7 +263,7 @@ def refresh(module_type, specs, args):
+ 
+     # Skip unknown packages.
+     writers = [
+-        cls(spec, args.module_set_name) for spec in specs
++        cls(spec) for spec in specs
+         if spack.repo.path.exists(spec.name)]
+ 
+     # Filter blacklisted packages early
+diff --git a/lib/spack/spack/cmd/modules/lmod.py b/lib/spack/spack/cmd/modules/lmod.py
+index 3546e2b87a16..61f2fc28d875 100644
+--- a/lib/spack/spack/cmd/modules/lmod.py
++++ b/lib/spack/spack/cmd/modules/lmod.py
+@@ -40,8 +40,7 @@ def setdefault(module_type, specs, args):
+     # https://lmod.readthedocs.io/en/latest/060_locating.html#marking-a-version-as-default
+     #
+     spack.cmd.modules.one_spec_or_raise(specs)
+-    writer = spack.modules.module_types['lmod'](
+-        specs[0], args.module_set_name)
++    writer = spack.modules.module_types['lmod'](specs[0])
+ 
+     module_folder = os.path.dirname(writer.layout.filename)
+     module_basename = os.path.basename(writer.layout.filename)
+diff --git a/lib/spack/spack/config.py b/lib/spack/spack/config.py
+index aa94f89f94b0..574902f50805 100644
+--- a/lib/spack/spack/config.py
++++ b/lib/spack/spack/config.py
+@@ -571,17 +571,16 @@ def get_config(self, section, scope=None):
+         YAML config file that looks like this::
+ 
+            config:
+-             install_tree:
+-               root: $spack/opt/spack
+-             build_stage:
+-             - $tmpdir/$user/spack-stage
++             install_tree: $spack/opt/spack
++             module_roots:
++               lmod:   $spack/share/spack/lmod
+ 
+         ``get_config('config')`` will return::
+ 
+-           { 'install_tree': {
+-                 'root': '$spack/opt/spack',
++           { 'install_tree': '$spack/opt/spack',
++             'module_roots: {
++                 'lmod': '$spack/share/spack/lmod'
+              }
+-             'build_stage': ['$tmpdir/$user/spack-stage']
+            }
+ 
+         """
+diff --git a/lib/spack/spack/environment.py b/lib/spack/spack/environment.py
+index 979e14e8c97d..647352a10e7e 100644
+--- a/lib/spack/spack/environment.py
++++ b/lib/spack/spack/environment.py
+@@ -20,7 +20,6 @@
+ import spack.concretize
+ import spack.error
+ import spack.hash_types as ht
+-import spack.hooks
+ import spack.repo
+ import spack.schema.env
+ import spack.spec
+@@ -460,15 +459,12 @@ def __init__(self, base_path, root, projections={}, select=[], exclude=[],
+         self.root = spack.util.path.canonicalize_path(root)
+         self.projections = projections
+         self.select = select
++        self.select_fn = lambda x: any(x.satisfies(s) for s in self.select)
+         self.exclude = exclude
++        self.exclude_fn = lambda x: not any(x.satisfies(e)
++                                            for e in self.exclude)
+         self.link = link
+ 
+-    def select_fn(self, spec):
+-        return any(spec.satisfies(s) for s in self.select)
+-
+-    def exclude_fn(self, spec):
+-        return not any(spec.satisfies(e) for e in self.exclude)
+-
+     def __eq__(self, other):
+         return all([self.root == other.root,
+                     self.projections == other.projections,
+@@ -749,7 +745,7 @@ def _re_read(self):
+         if not os.path.exists(self.manifest_path):
+             return
+ 
+-        self.clear(re_read=True)
++        self.clear()
+         self._read()
+ 
+     def _read(self):
+@@ -847,26 +843,15 @@ def _set_user_specs_from_lockfile(self):
+             )
+         }
+ 
+-    def clear(self, re_read=False):
+-        """Clear the contents of the environment
+-
+-        Arguments:
+-            re_read (boolean): If True, do not clear ``new_specs`` nor
+-                ``new_installs`` values. These values cannot be read from
+-                yaml, and need to be maintained when re-reading an existing
+-                environment.
+-        """
++    def clear(self):
+         self.spec_lists = {user_speclist_name: SpecList()}  # specs from yaml
+         self.dev_specs = {}               # dev-build specs from yaml
+         self.concretized_user_specs = []  # user specs from last concretize
+         self.concretized_order = []       # roots of last concretize, in order
+         self.specs_by_hash = {}           # concretized specs by hash
++        self.new_specs = []               # write packages for these on write()
+         self._repo = None                 # RepoPath for this env (memoized)
+         self._previous_active = None      # previously active environment
+-        if not re_read:
+-            # things that cannot be recreated from file
+-            self.new_specs = []               # write packages for these on write()
+-            self.new_installs = []            # write modules for these on write()
+ 
+     @property
+     def internal(self):
+@@ -1603,7 +1588,6 @@ def install_specs(self, specs=None, args=None, **install_args):
+             # Ensure links are set appropriately
+             for spec in specs_to_install:
+                 if spec.package.installed:
+-                    self.new_installs.append(spec)
+                     try:
+                         self._install_log_links(spec)
+                     except OSError as e:
+@@ -1832,16 +1816,17 @@ def _read_lockfile_dict(self, d):
+             self.concretized_order = [
+                 old_hash_to_new.get(h, h) for h in self.concretized_order]
+ 
+-    def write(self, regenerate=True):
++    def write(self, regenerate_views=True):
+         """Writes an in-memory environment to its location on disk.
+ 
+         Write out package files for each newly concretized spec.  Also
+-        regenerate any views associated with the environment and run post-write
+-        hooks, if regenerate is True.
++        regenerate any views associated with the environment, if
++        regenerate_views is True.
+ 
+         Arguments:
+-            regenerate (bool): regenerate views and run post-write hooks as
+-                well as writing if True.
++            regenerate_views (bool): regenerate views as well as
++                writing if True.
++
+         """
+         # Intercept environment not using the latest schema format and prevent
+         # them from being modified
+@@ -1877,6 +1862,7 @@ def write(self, regenerate=True):
+ 
+                     fs.mkdirp(pkg_dir)
+                     spack.repo.path.dump_provenance(dep, pkg_dir)
++            self.new_specs = []
+ 
+             # write the lock file last
+             with fs.write_tmp_and_move(self.lock_path) as f:
+@@ -1892,16 +1878,9 @@ def write(self, regenerate=True):
+         # call.  But, having it here makes the views consistent witht the
+         # concretized environment for most operations.  Which is the
+         # special case?
+-        if regenerate:
++        if regenerate_views:
+             self.regenerate_views()
+ 
+-            # Run post_env_hooks
+-            spack.hooks.post_env_write(self)
+-
+-        # new specs and new installs reset at write time
+-        self.new_specs = []
+-        self.new_installs = []
+-
+     def _update_and_write_manifest(self, raw_yaml_dict, yaml_dict):
+         """Update YAML manifest for this environment based on changes to
+         spec lists and views and write it.
+diff --git a/lib/spack/spack/hooks/__init__.py b/lib/spack/spack/hooks/__init__.py
+index d4b8cd8eca3b..3c15b978d373 100644
+--- a/lib/spack/spack/hooks/__init__.py
++++ b/lib/spack/spack/hooks/__init__.py
+@@ -22,7 +22,6 @@
+     * on_phase_error(pkg, phase_name, log_file)
+     * on_phase_error(pkg, phase_name, log_file)
+     * on_analyzer_save(pkg, result)
+-    * post_env_write(env)
+ 
+ This can be used to implement support for things like module
+ systems (e.g. modules, lmod, etc.) or to add other custom
+@@ -92,6 +91,3 @@ def __call__(self, *args, **kwargs):
+ 
+ # Analyzer hooks
+ on_analyzer_save = _HookRunner('on_analyzer_save')
+-
+-# Environment hooks
+-post_env_write = _HookRunner('post_env_write')
+diff --git a/lib/spack/spack/hooks/module_file_generation.py b/lib/spack/spack/hooks/module_file_generation.py
+index 99d149f29c4a..363654efc40d 100644
+--- a/lib/spack/spack/hooks/module_file_generation.py
++++ b/lib/spack/spack/hooks/module_file_generation.py
+@@ -11,37 +11,24 @@
+ 
+ def _for_each_enabled(spec, method_name):
+     """Calls a method for each enabled module"""
+-    for name in spack.config.get('modules', {}):
+-        enabled = spack.config.get('modules:%s:enable' % name)
+-        if not enabled:
+-            tty.debug('NO MODULE WRITTEN: list of enabled module files is empty')
+-            return
+-
+-        for type in enabled:
+-            generator = spack.modules.module_types[type](spec, name)
+-            try:
+-                getattr(generator, method_name)()
+-            except RuntimeError as e:
+-                msg = 'cannot perform the requested {0} operation on module files'
+-                msg += ' [{1}]'
+-                tty.warn(msg.format(method_name, str(e)))
++    enabled = spack.config.get('modules:enable')
++    if not enabled:
++        tty.debug('NO MODULE WRITTEN: list of enabled module files is empty')
++        return
+ 
++    for name in enabled:
++        generator = spack.modules.module_types[name](spec)
++        try:
++            getattr(generator, method_name)()
++        except RuntimeError as e:
++            msg = 'cannot perform the requested {0} operation on module files'
++            msg += ' [{1}]'
++            tty.warn(msg.format(method_name, str(e)))
+ 
+-def post_install(spec):
+-    import spack.environment  # break import cycle
+-    if spack.environment.get_env({}, ''):
+-        # If the installed through an environment, we skip post_install
+-        # module generation and generate the modules on env_write so Spack
+-        # can manage interactions between env views and modules
+-        return
+ 
++def post_install(spec):
+     _for_each_enabled(spec, 'write')
+ 
+ 
+ def post_uninstall(spec):
+     _for_each_enabled(spec, 'remove')
+-
+-
+-def post_env_write(env):
+-    for spec in env.new_installs:
+-        _for_each_enabled(spec, 'write')
+diff --git a/lib/spack/spack/main.py b/lib/spack/spack/main.py
+index fa1406be1454..6359d6dacf2d 100644
+--- a/lib/spack/spack/main.py
++++ b/lib/spack/spack/main.py
+@@ -647,9 +647,7 @@ def shell_set(var, value):
+         'tcl': list(),
+         'lmod': list()
+     }
+-    module_roots = spack.config.get('modules:default:roots', {})
+-    module_roots = spack.config.merge_yaml(
+-        module_roots, spack.config.get('config:module_roots', {}))
++    module_roots = spack.config.get('config:module_roots')
+     module_roots = dict(
+         (k, v) for k, v in module_roots.items() if k in module_to_roots
+     )
+diff --git a/lib/spack/spack/modules/common.py b/lib/spack/spack/modules/common.py
+index ae67ea51432c..ed843e03af9e 100644
+--- a/lib/spack/spack/modules/common.py
++++ b/lib/spack/spack/modules/common.py
+@@ -40,7 +40,6 @@
+ from llnl.util.lang import dedupe
+ import llnl.util.tty as tty
+ import spack.build_environment as build_environment
+-import spack.environment as ev
+ import spack.error
+ import spack.paths
+ import spack.schema.environment
+@@ -53,13 +52,8 @@
+ 
+ 
+ #: config section for this file
+-def configuration(module_set_name):
+-    config_path = 'modules:%s' % module_set_name
+-    config = spack.config.get(config_path, {})
+-    if not config and module_set_name == 'default':
+-        # return old format for backward compatibility
+-        return spack.config.get('modules', {})
+-    return config
++def configuration():
++    return spack.config.get('modules', {})
+ 
+ 
+ #: Valid tokens for naming scheme and env variable names
+@@ -210,23 +204,17 @@ def merge_config_rules(configuration, spec):
+     return spec_configuration
+ 
+ 
+-def root_path(name, module_set_name):
++def root_path(name):
+     """Returns the root folder for module file installation.
+ 
+     Args:
+         name: name of the module system to be used (e.g. 'tcl')
+-        module_set_name: name of the set of module configs to use
+ 
+     Returns:
+         root folder for module file installation
+     """
+     # Root folders where the various module files should be written
+-    roots = spack.config.get('modules:%s:roots' % module_set_name, {})
+-
+-    # For backwards compatibility, read the old module roots for default set
+-    if module_set_name == 'default':
+-        roots = spack.config.merge_yaml(
+-            spack.config.get('config:module_roots', {}), roots)
++    roots = spack.config.get('config:module_roots', {})
+     path = roots.get(name, os.path.join(spack.paths.share_path, name))
+     return spack.util.path.canonicalize_path(path)
+ 
+@@ -338,10 +326,7 @@ def upstream_module(self, spec, module_type):
+             return None
+ 
+ 
+-def get_module(
+-        module_type, spec, get_full_path,
+-        module_set_name='default', required=True
+-):
++def get_module(module_type, spec, get_full_path, required=True):
+     """Retrieve the module file for a given spec and module type.
+ 
+     Retrieve the module file for the given spec if it is available. If the
+@@ -357,8 +342,6 @@ def get_module(
+             then an exception is raised (regardless of whether it is required)
+         get_full_path: if ``True``, this returns the full path to the module.
+             Otherwise, this returns the module name.
+-        module_set_name: the named module configuration set from modules.yaml
+-            for which to retrieve the module.
+ 
+     Returns:
+         The module name or path. May return ``None`` if the module is not
+@@ -379,7 +362,7 @@ def get_module(
+         else:
+             return module.use_name
+     else:
+-        writer = spack.modules.module_types[module_type](spec, module_set_name)
++        writer = spack.modules.module_types[module_type](spec)
+         if not os.path.isfile(writer.layout.filename):
+             if not writer.conf.blacklisted:
+                 err_msg = "No module available for package {0} at {1}".format(
+@@ -406,22 +389,20 @@ class BaseConfiguration(object):
+     default_projections = {
+         'all': '{name}-{version}-{compiler.name}-{compiler.version}'}
+ 
+-    def __init__(self, spec, module_set_name):
++    def __init__(self, spec):
+         # Module where type(self) is defined
+         self.module = inspect.getmodule(self)
+         # Spec for which we want to generate a module file
+         self.spec = spec
+-        self.name = module_set_name
+         # Dictionary of configuration options that should be applied
+         # to the spec
+-        self.conf = merge_config_rules(
+-            self.module.configuration(self.name), self.spec)
++        self.conf = merge_config_rules(self.module.configuration(), self.spec)
+ 
+     @property
+     def projections(self):
+         """Projection from specs to module names"""
+         # backwards compatiblity for naming_scheme key
+-        conf = self.module.configuration(self.name)
++        conf = self.module.configuration()
+         if 'naming_scheme' in conf:
+             default = {'all': conf['naming_scheme']}
+         else:
+@@ -479,7 +460,7 @@ def blacklisted(self):
+         """
+         # A few variables for convenience of writing the method
+         spec = self.spec
+-        conf = self.module.configuration(self.name)
++        conf = self.module.configuration()
+ 
+         # Compute the list of whitelist rules that match
+         wlrules = conf.get('whitelist', [])
+@@ -541,7 +522,7 @@ def environment_blacklist(self):
+     def _create_list_for(self, what):
+         whitelist = []
+         for item in self.conf[what]:
+-            conf = type(self)(item, self.name)
++            conf = type(self)(item)
+             if not conf.blacklisted:
+                 whitelist.append(item)
+         return whitelist
+@@ -570,10 +551,11 @@ def spec(self):
+         """Spec under consideration"""
+         return self.conf.spec
+ 
+-    def dirname(self):
++    @classmethod
++    def dirname(cls):
+         """Root folder for module files of this type."""
+-        module_system = str(self.conf.module.__name__).split('.')[-1]
+-        return root_path(module_system, self.conf.name)
++        module_system = str(inspect.getmodule(cls).__name__).split('.')[-1]
++        return root_path(module_system)
+ 
+     @property
+     def use_name(self):
+@@ -673,30 +655,10 @@ def configure_options(self):
+     @tengine.context_property
+     def environment_modifications(self):
+         """List of environment modifications to be processed."""
+-        # Modifications guessed by inspecting the spec prefix
+-        std_prefix_inspections = spack.config.get(
+-            'modules:prefix_inspections', {})
+-        set_prefix_inspections = spack.config.get(
+-            'modules:%s:prefix_inspections' % self.conf.name, {})
+-        prefix_inspections = spack.config.merge_yaml(
+-            std_prefix_inspections, set_prefix_inspections)
+-
+-        use_view = spack.config.get(
+-            'modules:%s:use_view' % self.conf.name, False)
+-
+-        spec = self.spec.copy()  # defensive copy before setting prefix
+-        if use_view:
+-            if use_view is True:
+-                use_view = ev.default_view_name
+-
+-            env = ev.get_env({}, 'post_env_write_hook', required=True)
+-            view = env.views[use_view].view()
+-
+-            spec.prefix = view.get_projection_for_spec(spec)
+-
++        # Modifications guessed inspecting the spec prefix
+         env = spack.util.environment.inspect_path(
+-            spec.prefix,
+-            prefix_inspections,
++            self.spec.prefix,
++            spack.config.get('modules:prefix_inspections', {}),
+             exclude=spack.util.environment.is_system_path
+         )
+ 
+@@ -704,12 +666,12 @@ def environment_modifications(self):
+         # before asking for package-specific modifications
+         env.extend(
+             build_environment.modifications_from_dependencies(
+-                spec, context='run'
++                self.spec, context='run'
+             )
+         )
+         # Package specific modifications
+-        build_environment.set_module_variables_for_package(spec.package)
+-        spec.package.setup_run_environment(env)
++        build_environment.set_module_variables_for_package(self.spec.package)
++        self.spec.package.setup_run_environment(env)
+ 
+         # Modifications required from modules.yaml
+         env.extend(self.conf.env)
+@@ -724,17 +686,17 @@ def environment_modifications(self):
+         # tokens uppercase.
+         transform = {}
+         for token in _valid_tokens:
+-            transform[token] = lambda s, string: str.upper(string)
++            transform[token] = lambda spec, string: str.upper(string)
+ 
+         for x in env:
+             # Ensure all the tokens are valid in this context
+             msg = 'some tokens cannot be expanded in an environment variable name'  # noqa: E501
+             _check_tokens_are_valid(x.name, message=msg)
+             # Transform them
+-            x.name = spec.format(x.name, transform=transform)
++            x.name = self.spec.format(x.name, transform=transform)
+             try:
+                 # Not every command has a value
+-                x.value = spec.format(x.value)
++                x.value = self.spec.format(x.value)
+             except AttributeError:
+                 pass
+             x.name = str(x.name).replace('-', '_')
+@@ -752,8 +714,7 @@ def autoload(self):
+ 
+     def _create_module_list_of(self, what):
+         m = self.conf.module
+-        name = self.conf.name
+-        return [m.make_layout(x, name).use_name
++        return [m.make_layout(x).use_name
+                 for x in getattr(self.conf, what)]
+ 
+     @tengine.context_property
+@@ -763,7 +724,7 @@ def verbose(self):
+ 
+ 
+ class BaseModuleFileWriter(object):
+-    def __init__(self, spec, module_set_name):
++    def __init__(self, spec):
+         self.spec = spec
+ 
+         # This class is meant to be derived. Get the module of the
+@@ -772,9 +733,9 @@ def __init__(self, spec, module_set_name):
+         m = self.module
+ 
+         # Create the triplet of configuration/layout/context
+-        self.conf = m.make_configuration(spec, module_set_name)
+-        self.layout = m.make_layout(spec, module_set_name)
+-        self.context = m.make_context(spec, module_set_name)
++        self.conf = m.make_configuration(spec)
++        self.layout = m.make_layout(spec)
++        self.context = m.make_context(spec)
+ 
+         # Check if a default template has been defined,
+         # throw if not found
+diff --git a/lib/spack/spack/modules/lmod.py b/lib/spack/spack/modules/lmod.py
+index bc4776142103..bb4476a7b064 100644
+--- a/lib/spack/spack/modules/lmod.py
++++ b/lib/spack/spack/modules/lmod.py
+@@ -22,42 +22,36 @@
+ 
+ 
+ #: lmod specific part of the configuration
+-def configuration(module_set_name):
+-    config_path = 'modules:%s:lmod' % module_set_name
+-    config = spack.config.get(config_path, {})
+-    if not config and module_set_name == 'default':
+-        # return old format for backward compatibility
+-        return spack.config.get('modules:lmod', {})
+-    return config
++def configuration():
++    return spack.config.get('modules:lmod', {})
+ 
+ 
+ #: Caches the configuration {spec_hash: configuration}
+ configuration_registry = {}  # type: Dict[str, Any]
+ 
+ 
+-def make_configuration(spec, module_set_name):
++def make_configuration(spec):
+     """Returns the lmod configuration for spec"""
+-    key = (spec.dag_hash(), module_set_name)
++    key = spec.dag_hash()
+     try:
+         return configuration_registry[key]
+     except KeyError:
+-        return configuration_registry.setdefault(
+-            key, LmodConfiguration(spec, module_set_name))
++        return configuration_registry.setdefault(key, LmodConfiguration(spec))
+ 
+ 
+-def make_layout(spec, module_set_name):
++def make_layout(spec):
+     """Returns the layout information for spec """
+-    conf = make_configuration(spec, module_set_name)
++    conf = make_configuration(spec)
+     return LmodFileLayout(conf)
+ 
+ 
+-def make_context(spec, module_set_name):
++def make_context(spec):
+     """Returns the context information for spec"""
+-    conf = make_configuration(spec, module_set_name)
++    conf = make_configuration(spec)
+     return LmodContext(conf)
+ 
+ 
+-def guess_core_compilers(name, store=False):
++def guess_core_compilers(store=False):
+     """Guesses the list of core compilers installed in the system.
+ 
+     Args:
+@@ -87,12 +81,11 @@ def guess_core_compilers(name, store=False):
+         # in the default modify scope (i.e. within the directory hierarchy
+         # of Spack itself)
+         modules_cfg = spack.config.get(
+-            'modules:' + name, {}, scope=spack.config.default_modify_scope()
++            'modules', scope=spack.config.default_modify_scope()
+         )
+         modules_cfg.setdefault('lmod', {})['core_compilers'] = core_compilers
+         spack.config.set(
+-            'modules:' + name, modules_cfg,
+-            scope=spack.config.default_modify_scope()
++            'modules', modules_cfg, scope=spack.config.default_modify_scope()
+         )
+ 
+     return core_compilers or None
+@@ -111,9 +104,9 @@ def core_compilers(self):
+                 specified in the configuration file or the sequence
+                 is empty
+         """
+-        value = configuration(self.name).get(
++        value = configuration().get(
+             'core_compilers'
+-        ) or guess_core_compilers(self.name, store=True)
++        ) or guess_core_compilers(store=True)
+ 
+         if not value:
+             msg = 'the key "core_compilers" must be set in modules.yaml'
+@@ -123,14 +116,14 @@ def core_compilers(self):
+     @property
+     def core_specs(self):
+         """Returns the list of "Core" specs"""
+-        return configuration(self.name).get('core_specs', [])
++        return configuration().get('core_specs', [])
+ 
+     @property
+     def hierarchy_tokens(self):
+         """Returns the list of tokens that are part of the modulefile
+         hierarchy. 'compiler' is always present.
+         """
+-        tokens = configuration(self.name).get('hierarchy', [])
++        tokens = configuration().get('hierarchy', [])
+ 
+         # Check if all the tokens in the hierarchy are virtual specs.
+         # If not warn the user and raise an error.
+@@ -414,7 +407,7 @@ def missing(self):
+     @tengine.context_property
+     def unlocked_paths(self):
+         """Returns the list of paths that are unlocked unconditionally."""
+-        layout = make_layout(self.spec, self.conf.name)
++        layout = make_layout(self.spec)
+         return [os.path.join(*parts) for parts in layout.unlocked_paths[None]]
+ 
+     @tengine.context_property
+@@ -422,7 +415,7 @@ def conditionally_unlocked_paths(self):
+         """Returns the list of paths that are unlocked conditionally.
+         Each item in the list is a tuple with the structure (condition, path).
+         """
+-        layout = make_layout(self.spec, self.conf.name)
++        layout = make_layout(self.spec)
+         value = []
+         conditional_paths = layout.unlocked_paths
+         conditional_paths.pop(None)
+diff --git a/lib/spack/spack/modules/tcl.py b/lib/spack/spack/modules/tcl.py
+index d2f980bbc713..e1d2ac7fe3d8 100644
+--- a/lib/spack/spack/modules/tcl.py
++++ b/lib/spack/spack/modules/tcl.py
+@@ -20,38 +20,32 @@
+ 
+ 
+ #: TCL specific part of the configuration
+-def configuration(module_set_name):
+-    config_path = 'modules:%s:tcl' % module_set_name
+-    config = spack.config.get(config_path, {})
+-    if not config and module_set_name == 'default':
+-        # return old format for backward compatibility
+-        return spack.config.get('modules:tcl', {})
+-    return config
++def configuration():
++    return spack.config.get('modules:tcl', {})
+ 
+ 
+ #: Caches the configuration {spec_hash: configuration}
+ configuration_registry = {}  # type: Dict[str, Any]
+ 
+ 
+-def make_configuration(spec, module_set_name):
++def make_configuration(spec):
+     """Returns the tcl configuration for spec"""
+-    key = (spec.dag_hash(), module_set_name)
++    key = spec.dag_hash()
+     try:
+         return configuration_registry[key]
+     except KeyError:
+-        return configuration_registry.setdefault(
+-            key, TclConfiguration(spec, module_set_name))
++        return configuration_registry.setdefault(key, TclConfiguration(spec))
+ 
+ 
+-def make_layout(spec, module_set_name):
++def make_layout(spec):
+     """Returns the layout information for spec """
+-    conf = make_configuration(spec, module_set_name)
++    conf = make_configuration(spec)
+     return TclFileLayout(conf)
+ 
+ 
+-def make_context(spec, module_set_name):
++def make_context(spec):
+     """Returns the context information for spec"""
+-    conf = make_configuration(spec, module_set_name)
++    conf = make_configuration(spec)
+     return TclContext(conf)
+ 
+ 
+diff --git a/lib/spack/spack/schema/modules.py b/lib/spack/spack/schema/modules.py
+index 07a495af136a..39db0bf9a7ad 100644
+--- a/lib/spack/spack/schema/modules.py
++++ b/lib/spack/spack/schema/modules.py
+@@ -20,10 +20,6 @@
+              r'blacklist|projections|naming_scheme|core_compilers|all)' \
+              r'(^\w[\w-]*)'
+ 
+-#: Matches a valid name for a module set
+-# Banned names are valid entries at that level in the previous schema
+-set_regex = r'(?!enable|lmod|tcl|dotkit|prefix_inspections)^\w[\w-]*'
+-
+ #: Matches an anonymous spec, i.e. a spec without a root name
+ anonymous_spec_regex = r'^[\^@%+~]'
+ 
+@@ -116,105 +112,74 @@
+ }
+ 
+ 
+-#: The "real" module properties -- the actual configuration parameters.
+-#: They are separate from ``properties`` because they can appear both
+-#: at the top level of a Spack ``modules:`` config (old, deprecated format),
+-#: and within a named module set (new format with multiple module sets).
+-module_config_properties = {
+-    'use_view': {'anyOf': [
+-        {'type': 'string'},
+-        {'type': 'boolean'}
+-    ]},
+-    'prefix_inspections': {
+-        'type': 'object',
+-        'additionalProperties': False,
+-        'patternProperties': {
+-            # prefix-relative path to be inspected for existence
+-            r'^[\w-]*': array_of_strings
+-        }
+-    },
+-    'roots': {
+-        'type': 'object',
+-        'properties': {
+-            'tcl': {'type': 'string'},
+-            'lmod': {'type': 'string'},
+-        },
+-    },
+-    'enable': {
+-        'type': 'array',
+-        'default': [],
+-        'items': {
+-            'type': 'string',
+-            'enum': ['tcl', 'dotkit', 'lmod']
+-        },
+-        'deprecatedProperties': {
+-            'properties': ['dotkit'],
+-            'message': 'cannot enable "dotkit" in modules.yaml '
+-            '[support for "dotkit" has been dropped '
+-            'in v0.13.0]',
+-            'error': False
+-        },
+-    },
+-    'lmod': {
+-        'allOf': [
+-            # Base configuration
+-            module_type_configuration,
+-            {
+-                'type': 'object',
+-                'properties': {
+-                    'core_compilers': array_of_strings,
+-                    'hierarchy': array_of_strings,
+-                    'core_specs': array_of_strings,
+-                },
+-            }  # Specific lmod extensions
+-        ]
+-    },
+-    'tcl': {
+-        'allOf': [
+-            # Base configuration
+-            module_type_configuration,
+-            {}  # Specific tcl extensions
+-        ]
+-    },
+-    'dotkit': {
+-        'allOf': [
+-            # Base configuration
+-            module_type_configuration,
+-            {}  # Specific dotkit extensions
+-        ]
+-    },
+-}
+-
+-
+ # Properties for inclusion into other schemas (requires definitions)
+ properties = {
+     'modules': {
+         'type': 'object',
+-        'patternProperties': {
+-            set_regex: {
++        'default': {},
++        'additionalProperties': False,
++        'properties': {
++            'prefix_inspections': {
+                 'type': 'object',
+-                'default': {},
+-                'additionalProperties': False,
+-                'properties': module_config_properties,
++                'patternProperties': {
++                    # prefix-relative path to be inspected for existence
++                    r'\w[\w-]*': array_of_strings
++                }
++            },
++            'enable': {
++                'type': 'array',
++                'default': [],
++                'items': {
++                    'type': 'string',
++                    'enum': ['tcl', 'dotkit', 'lmod']
++                },
+                 'deprecatedProperties': {
+                     'properties': ['dotkit'],
+-                    'message': 'the "dotkit" section in modules.yaml has no effect'
+-                    ' [support for "dotkit" has been dropped in v0.13.0]',
++                    'message': 'cannot enable "dotkit" in modules.yaml '
++                               '[support for "dotkit" has been dropped '
++                               'in v0.13.0]',
+                     'error': False
+-                }
++                },
++            },
++            'lmod': {
++                'allOf': [
++                    # Base configuration
++                    module_type_configuration,
++                    {
++                        'type': 'object',
++                        'properties': {
++                            'core_compilers': array_of_strings,
++                            'hierarchy': array_of_strings,
++                            'core_specs': array_of_strings,
++                        },
++                    }  # Specific lmod extensions
++                ]
++            },
++            'tcl': {
++                'allOf': [
++                    # Base configuration
++                    module_type_configuration,
++                    {}  # Specific tcl extensions
++                ]
++            },
++            'dotkit': {
++                'allOf': [
++                    # Base configuration
++                    module_type_configuration,
++                    {}  # Specific dotkit extensions
++                ]
+             },
+         },
+-        # Available here for backwards compatibility
+-        'properties': module_config_properties,
+         'deprecatedProperties': {
+             'properties': ['dotkit'],
+             'message': 'the "dotkit" section in modules.yaml has no effect'
+-            ' [support for "dotkit" has been dropped in v0.13.0]',
++                       ' [support for "dotkit" has been dropped in v0.13.0]',
+             'error': False
+-        }
+-    }
++        },
++    },
+ }
+ 
++
+ #: Full schema with metadata
+ schema = {
+     '$schema': 'http://json-schema.org/schema#',
+diff --git a/lib/spack/spack/subprocess_context.py b/lib/spack/spack/subprocess_context.py
+index 0b41d796fab4..3eee2125d29c 100644
+--- a/lib/spack/spack/subprocess_context.py
++++ b/lib/spack/spack/subprocess_context.py
+@@ -65,25 +65,19 @@ class PackageInstallContext(object):
+     needs to be transmitted to a child process.
+     """
+     def __init__(self, pkg):
+-        import spack.environment as ev  # break import cycle
+         if _serialize:
+             self.serialized_pkg = serialize(pkg)
+-            self.serialized_env = serialize(ev._active_environment)
+         else:
+             self.pkg = pkg
+-            self.env = ev._active_environment
+         self.spack_working_dir = spack.main.spack_working_dir
+         self.test_state = TestState()
+ 
+     def restore(self):
+-        import spack.environment as ev  # break import cycle
+         self.test_state.restore()
+         spack.main.spack_working_dir = self.spack_working_dir
+         if _serialize:
+-            ev._active_environment = pickle.load(self.serialized_env)
+             return pickle.load(self.serialized_pkg)
+         else:
+-            ev._active_environment = self.env
+             return self.pkg
+ 
+ 
+diff --git a/lib/spack/spack/test/cmd/env.py b/lib/spack/spack/test/cmd/env.py
+index 002bd14c0f6d..f6933dc34915 100644
+--- a/lib/spack/spack/test/cmd/env.py
++++ b/lib/spack/spack/test/cmd/env.py
+@@ -2,7 +2,7 @@
+ # Spack Project Developers. See the top-level COPYRIGHT file for details.
+ #
+ # SPDX-License-Identifier: (Apache-2.0 OR MIT)
+-import glob
++
+ import os
+ from six import StringIO
+ 
+@@ -2484,80 +2484,3 @@ def test_custom_version_concretize_together(tmpdir):
+     e.concretize()
+ 
+     assert any('hdf5@myversion' in spec for _, spec in e.concretized_specs())
+-
+-
+-def test_modules_relative_to_views(tmpdir, install_mockery, mock_fetch):
+-    spack_yaml = """
+-spack:
+-  specs:
+-  - trivial-install-test-package
+-  modules:
+-    default:
+-      enable:: [tcl]
+-      use_view: true
+-      roots:
+-        tcl: modules
+-"""
+-    _env_create('test', StringIO(spack_yaml))
+-
+-    with ev.read('test') as e:
+-        install()
+-
+-        spec = e.specs_by_hash[e.concretized_order[0]]
+-        view_prefix = e.default_view.view().get_projection_for_spec(spec)
+-        modules_glob = '%s/modules/**/*' % e.path
+-        modules = glob.glob(modules_glob)
+-        assert len(modules) == 1
+-        module = modules[0]
+-
+-    with open(module, 'r') as f:
+-        contents = f.read()
+-
+-    assert view_prefix in contents
+-    assert spec.prefix not in contents
+-
+-
+-def test_multiple_modules_post_env_hook(tmpdir, install_mockery, mock_fetch):
+-    spack_yaml = """
+-spack:
+-  specs:
+-  - trivial-install-test-package
+-  modules:
+-    default:
+-      enable:: [tcl]
+-      use_view: true
+-      roots:
+-        tcl: modules
+-    full:
+-      enable:: [tcl]
+-      roots:
+-        tcl: full_modules
+-"""
+-    _env_create('test', StringIO(spack_yaml))
+-
+-    with ev.read('test') as e:
+-        install()
+-
+-        spec = e.specs_by_hash[e.concretized_order[0]]
+-        view_prefix = e.default_view.view().get_projection_for_spec(spec)
+-        modules_glob = '%s/modules/**/*' % e.path
+-        modules = glob.glob(modules_glob)
+-        assert len(modules) == 1
+-        module = modules[0]
+-
+-        full_modules_glob = '%s/full_modules/**/*' % e.path
+-        full_modules = glob.glob(full_modules_glob)
+-        assert len(full_modules) == 1
+-        full_module  = full_modules[0]
+-
+-    with open(module, 'r') as f:
+-        contents = f.read()
+-
+-    with open(full_module, 'r') as f:
+-        full_contents = f.read()
+-
+-    assert view_prefix in contents
+-    assert spec.prefix not in contents
+-
+-    assert view_prefix not in full_contents
+-    assert spec.prefix in full_contents
+diff --git a/lib/spack/spack/test/cmd/module.py b/lib/spack/spack/test/cmd/module.py
+index 7b281eeba31e..9acb21fdefdc 100644
+--- a/lib/spack/spack/test/cmd/module.py
++++ b/lib/spack/spack/test/cmd/module.py
+@@ -32,7 +32,7 @@ def ensure_module_files_are_there(
+ def _module_files(module_type, *specs):
+     specs = [spack.spec.Spec(x).concretized() for x in specs]
+     writer_cls = spack.modules.module_types[module_type]
+-    return [writer_cls(spec, 'default').layout.filename for spec in specs]
++    return [writer_cls(spec).layout.filename for spec in specs]
+ 
+ 
+ @pytest.fixture(
+@@ -200,10 +200,8 @@ def test_setdefault_command(
+     spack.spec.Spec(preferred).concretized().package.do_install(fake=True)
+ 
+     writers = {
+-        preferred: writer_cls(
+-            spack.spec.Spec(preferred).concretized(), 'default'),
+-        other_spec: writer_cls(
+-            spack.spec.Spec(other_spec).concretized(), 'default')
++        preferred: writer_cls(spack.spec.Spec(preferred).concretized()),
++        other_spec: writer_cls(spack.spec.Spec(other_spec).concretized())
+     }
+ 
+     # Create two module files for the same software
+diff --git a/lib/spack/spack/test/config.py b/lib/spack/spack/test/config.py
+index 3e21bddbd607..d47851462aff 100644
+--- a/lib/spack/spack/test/config.py
++++ b/lib/spack/spack/test/config.py
+@@ -374,9 +374,9 @@ def test_substitute_config_variables(mock_low_high_config, monkeypatch):
+ 
+     # relative paths with source information are relative to the file
+     spack.config.set(
+-        'modules:default', {'roots': {'lmod': 'foo/bar/baz'}}, scope='low')
++        'config:module_roots', {'lmod': 'foo/bar/baz'}, scope='low')
+     spack.config.config.clear_caches()
+-    path = spack.config.get('modules:default:roots:lmod')
++    path = spack.config.get('config:module_roots:lmod')
+     assert spack_path.canonicalize_path(path) == os.path.normpath(
+         os.path.join(mock_low_high_config.scopes['low'].path,
+                      'foo/bar/baz'))
+@@ -987,9 +987,8 @@ def test_bad_config_yaml(tmpdir):
+         check_schema(spack.schema.config.schema, """\
+ config:
+     verify_ssl: False
+-    install_tree:
+-      root:
+-        extra_level: foo
++    module_roots:
++        fmod: /some/fake/location
+ """)
+ 
+ 
+diff --git a/lib/spack/spack/test/conftest.py b/lib/spack/spack/test/conftest.py
+index b76cd1be1b5f..6cc3ad16dbca 100644
+--- a/lib/spack/spack/test/conftest.py
++++ b/lib/spack/spack/test/conftest.py
+@@ -763,11 +763,11 @@ def __init__(self, configuration, writer_key):
+         self._configuration = configuration
+         self.writer_key = writer_key
+ 
+-    def configuration(self, module_set_name):
++    def configuration(self):
+         return self._configuration
+ 
+-    def writer_configuration(self, module_set_name):
+-        return self.configuration(module_set_name)[self.writer_key]
++    def writer_configuration(self):
++        return self.configuration()[self.writer_key]
+ 
+ 
+ class ConfigUpdate(object):
+@@ -780,9 +780,7 @@ def __init__(self, root_for_conf, writer_mod, writer_key, monkeypatch):
+     def __call__(self, filename):
+         file = os.path.join(self.root_for_conf, filename + '.yaml')
+         with open(file) as f:
+-            config_settings = syaml.load_config(f)
+-        spack.config.set('modules:default', config_settings)
+-        mock_config = MockConfig(config_settings, self.writer_key)
++            mock_config = MockConfig(syaml.load_config(f), self.writer_key)
+ 
+         self.monkeypatch.setattr(
+             spack.modules.common,
+diff --git a/lib/spack/spack/test/data/config/config.yaml b/lib/spack/spack/test/data/config/config.yaml
+index d5c5f914fbb9..09ab7709a305 100644
+--- a/lib/spack/spack/test/data/config/config.yaml
++++ b/lib/spack/spack/test/data/config/config.yaml
+@@ -14,3 +14,6 @@ config:
+   checksum: true
+   dirty: false
+   concretizer: {0}
++  module_roots:
++    tcl: {1}
++    lmod: {2}
+diff --git a/lib/spack/spack/test/data/config/modules.yaml b/lib/spack/spack/test/data/config/modules.yaml
+index e2ddd841c53d..f610087fb187 100644
+--- a/lib/spack/spack/test/data/config/modules.yaml
++++ b/lib/spack/spack/test/data/config/modules.yaml
+@@ -14,9 +14,8 @@
+ #   ~/.spack/modules.yaml
+ # -------------------------------------------------------------------------
+ modules:
+-  default:
+-    enable:
+-      - tcl
++  enable:
++    - tcl
+   prefix_inspections:
+     bin:
+       - PATH
+diff --git a/lib/spack/spack/test/data/modules/lmod/alter_environment.yaml b/lib/spack/spack/test/data/modules/lmod/alter_environment.yaml
+index 314dd1ddf573..f61c94362e81 100644
+--- a/lib/spack/spack/test/data/modules/lmod/alter_environment.yaml
++++ b/lib/spack/spack/test/data/modules/lmod/alter_environment.yaml
+@@ -9,7 +9,7 @@ lmod:
+ 
+   all:
+     filter:
+-      environment_blacklist:
++      environment_blacklist':
+         - CMAKE_PREFIX_PATH
+     environment:
+       set:
+diff --git a/lib/spack/spack/test/data/modules/lmod/with_view.yaml b/lib/spack/spack/test/data/modules/lmod/with_view.yaml
+deleted file mode 100644
+index 28220fe44545..000000000000
+--- a/lib/spack/spack/test/data/modules/lmod/with_view.yaml
++++ /dev/null
+@@ -1,6 +0,0 @@
+-enable:
+-  - lmod
+-use_view: default
+-lmod:
+-  core_compilers:
+-    - 'clang@3.3'
+diff --git a/lib/spack/spack/test/data/modules/tcl/alter_environment.yaml b/lib/spack/spack/test/data/modules/tcl/alter_environment.yaml
+index 74d9724695a7..ecb0f5625494 100644
+--- a/lib/spack/spack/test/data/modules/tcl/alter_environment.yaml
++++ b/lib/spack/spack/test/data/modules/tcl/alter_environment.yaml
+@@ -3,7 +3,7 @@ enable:
+ tcl:
+   all:
+     filter:
+-      environment_blacklist:
++      environment_blacklist':
+         - CMAKE_PREFIX_PATH
+     environment:
+       set:
+diff --git a/lib/spack/spack/test/data/modules/tcl/invalid_token_in_env_var_name.yaml b/lib/spack/spack/test/data/modules/tcl/invalid_token_in_env_var_name.yaml
+index 6012a2d3b0af..bed866fe90a9 100644
+--- a/lib/spack/spack/test/data/modules/tcl/invalid_token_in_env_var_name.yaml
++++ b/lib/spack/spack/test/data/modules/tcl/invalid_token_in_env_var_name.yaml
+@@ -3,7 +3,7 @@ enable:
+ tcl:
+   all:
+     filter:
+-      environment_blacklist:
++      environment_blacklist':
+         - CMAKE_PREFIX_PATH
+     environment:
+       set:
+diff --git a/lib/spack/spack/test/modules/common.py b/lib/spack/spack/test/modules/common.py
+index 8270b01c71af..0918cf2dfd00 100644
+--- a/lib/spack/spack/test/modules/common.py
++++ b/lib/spack/spack/test/modules/common.py
+@@ -70,7 +70,7 @@ def test_modules_written_with_proper_permissions(mock_module_filename,
+ 
+     # The code tested is common to all module types, but has to be tested from
+     # one. TCL picked at random
+-    generator = spack.modules.tcl.TclModulefileWriter(spec, 'default')
++    generator = spack.modules.tcl.TclModulefileWriter(spec)
+     generator.write()
+ 
+     assert mock_package_perms & os.stat(
+diff --git a/lib/spack/spack/test/modules/conftest.py b/lib/spack/spack/test/modules/conftest.py
+index ea61a3b955cb..dbfac6b0bc44 100644
+--- a/lib/spack/spack/test/modules/conftest.py
++++ b/lib/spack/spack/test/modules/conftest.py
+@@ -19,11 +19,11 @@ def modulefile_content(request):
+ 
+     writer_cls = getattr(request.module, 'writer_cls')
+ 
+-    def _impl(spec_str, module_set_name='default'):
++    def _impl(spec_str):
+         # Write the module file
+         spec = spack.spec.Spec(spec_str)
+         spec.concretize()
+-        generator = writer_cls(spec, module_set_name)
++        generator = writer_cls(spec)
+         generator.write(overwrite=True)
+ 
+         # Get its filename
+@@ -56,9 +56,9 @@ def factory(request):
+     # Class of the module file writer
+     writer_cls = getattr(request.module, 'writer_cls')
+ 
+-    def _mock(spec_string, module_set_name='default'):
++    def _mock(spec_string):
+         spec = spack.spec.Spec(spec_string)
+         spec.concretize()
+-        return writer_cls(spec, module_set_name), spec
++        return writer_cls(spec), spec
+ 
+     return _mock
+diff --git a/lib/spack/spack/test/modules/lmod.py b/lib/spack/spack/test/modules/lmod.py
+index 097aaf526fb5..7239c487aa04 100644
+--- a/lib/spack/spack/test/modules/lmod.py
++++ b/lib/spack/spack/test/modules/lmod.py
+@@ -5,17 +5,12 @@
+ import re
+ import pytest
+ 
+-import spack.environment as ev
+-import spack.main
+ import spack.modules.lmod
+-import spack.spec
+ 
+ mpich_spec_string = 'mpich@3.0.4'
+ mpileaks_spec_string = 'mpileaks'
+ libdwarf_spec_string = 'libdwarf arch=x64-linux'
+ 
+-install = spack.main.SpackCommand('install')
+-
+ #: Class of the writer tested in this module
+ writer_cls = spack.modules.lmod.LmodModulefileWriter
+ 
+@@ -319,35 +314,3 @@ def test_projections_all(self, factory, module_configuration):
+         assert writer.conf.projections == expected
+         projection = writer.spec.format(writer.conf.projections['all'])
+         assert projection in writer.layout.use_name
+-
+-    def test_config_backwards_compat(self, mutable_config):
+-        settings = {
+-            'enable': ['lmod'],
+-            'lmod': {
+-                'core_compilers': ['%gcc@0.0.0']
+-            }
+-        }
+-
+-        spack.config.set('modules:default', settings)
+-        new_format = spack.modules.lmod.configuration('default')
+-
+-        spack.config.set('modules', settings)
+-        old_format = spack.modules.lmod.configuration('default')
+-
+-        assert old_format == new_format
+-        assert old_format == settings['lmod']
+-
+-    def test_modules_relative_to_view(
+-            self, tmpdir, modulefile_content, module_configuration, install_mockery):
+-        with ev.Environment(str(tmpdir), with_view=True) as e:
+-            module_configuration('with_view')
+-            install('cmake')
+-
+-            spec = spack.spec.Spec('cmake').concretized()
+-
+-            content = modulefile_content('cmake')
+-            expected = e.default_view.view().get_projection_for_spec(spec)
+-            # Rather than parse all lines, ensure all prefixes in the content
+-            # point to the right one
+-            assert any(expected in line for line in content)
+-            assert not any(spec.prefix in line for line in content)
+diff --git a/lib/spack/spack/test/modules/tcl.py b/lib/spack/spack/test/modules/tcl.py
+index 464d91c278d1..e5f2797e39da 100644
+--- a/lib/spack/spack/test/modules/tcl.py
++++ b/lib/spack/spack/test/modules/tcl.py
+@@ -359,14 +359,14 @@ def test_blacklist_implicits(
+         # the tests database
+         mpileaks_specs = database.query('mpileaks')
+         for item in mpileaks_specs:
+-            writer = writer_cls(item, 'default')
++            writer = writer_cls(item)
+             assert not writer.conf.blacklisted
+ 
+         # callpath is a dependency of mpileaks, and has been pulled
+         # in implicitly
+         callpath_specs = database.query('callpath')
+         for item in callpath_specs:
+-            writer = writer_cls(item, 'default')
++            writer = writer_cls(item)
+             assert writer.conf.blacklisted
+ 
+     @pytest.mark.regression('9624')
+@@ -385,22 +385,3 @@ def test_autoload_with_constraints(
+         # Test the mpileaks that should NOT have the autoloaded dependencies
+         content = modulefile_content('mpileaks ^mpich')
+         assert len([x for x in content if 'is-loaded' in x]) == 0
+-
+-    def test_config_backwards_compat(self, mutable_config):
+-        settings = {
+-            'enable': ['tcl'],
+-            'tcl': {
+-                'all': {
+-                    'conflict': ['{name}']
+-                }
+-            }
+-        }
+-
+-        spack.config.set('modules:default', settings)
+-        new_format = spack.modules.tcl.configuration('default')
+-
+-        spack.config.set('modules', settings)
+-        old_format = spack.modules.tcl.configuration('default')
+-
+-        assert old_format == new_format
+-        assert old_format == settings['tcl']
+diff --git a/lib/spack/spack/user_environment.py b/lib/spack/spack/user_environment.py
+index 15c8d2822a14..7dd63dcdeaf6 100644
+--- a/lib/spack/spack/user_environment.py
++++ b/lib/spack/spack/user_environment.py
+@@ -26,8 +26,8 @@ def prefix_inspections(platform):
+         A dictionary mapping subdirectory names to lists of environment
+             variables to modify with that directory if it exists.
+     """
+-    inspections = spack.config.get('modules:default:prefix_inspections', {})
+-    if inspections:
++    inspections = spack.config.get('modules:prefix_inspections', None)
++    if inspections is not None:
+         return inspections
+ 
+     inspections = {
+diff --git a/share/spack/spack-completion.bash b/share/spack/spack-completion.bash
+index ac2727eeb9e9..0c17f293128d 100755
+--- a/share/spack/spack-completion.bash
++++ b/share/spack/spack-completion.bash
+@@ -858,7 +858,7 @@ _spack_env_st() {
+ _spack_env_loads() {
+     if $list_options
+     then
+-        SPACK_COMPREPLY="-h --help -n --module-set-name -m --module-type --input-only -p --prefix -x --exclude -r --dependencies"
++        SPACK_COMPREPLY="-h --help -m --module-type --input-only -p --prefix -x --exclude -r --dependencies"
+     else
+         _environments
+     fi
+@@ -1218,7 +1218,7 @@ _spack_module() {
+ _spack_module_lmod() {
+     if $list_options
+     then
+-        SPACK_COMPREPLY="-h --help -n --name"
++        SPACK_COMPREPLY="-h --help"
+     else
+         SPACK_COMPREPLY="refresh find rm loads setdefault"
+     fi
+@@ -1272,7 +1272,7 @@ _spack_module_lmod_setdefault() {
+ _spack_module_tcl() {
+     if $list_options
+     then
+-        SPACK_COMPREPLY="-h --help -n --name"
++        SPACK_COMPREPLY="-h --help"
+     else
+         SPACK_COMPREPLY="refresh find rm loads"
+     fi

@@ -38,6 +38,7 @@ export PATH="$PWD:$PATH"
 
     # Apply the patch that allows you to drop specifying --log-file
     patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/6_spack/20158.patch"
+    patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/6_spack/23674.patch"
     patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/patches/hack-wrapper.patch"
     cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" spack_src/etc/spack/
 

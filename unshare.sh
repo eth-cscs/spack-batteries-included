@@ -9,7 +9,7 @@ mount -t proc /proc rootfs/proc
 touch rootfs/etc/resolv.conf && mount --bind /etc/resolv.conf rootfs/etc/resolv.conf
 
 # Mount some scripts we need
-touch rootfs/bin/setup.sh    && mount -o ro,bind setup.sh rootfs/bin/setup.sh
+touch rootfs/bin/setup.sh    && mount --bind setup.sh rootfs/bin/setup.sh
 
 # Mount a bunch of our workspace directories
 mkdir -p rootfs/build        && mount --bind build rootfs/build

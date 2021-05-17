@@ -93,14 +93,16 @@ clean-1_ccache:
 clean-2_compiler:
 	rm -rf build/2_compiler/install build/2_compiler/spack.lock build/2_compiler/.spack-env build/2_compiler/view build/2_compiler/._view
 
-clean-3_environment:
-	rm -rf build/3_environment/make_relative_env build/3_environment/prune
+clean-3_more_tools:
+	rm -rf build/3_more_tools/install build/3_more_tools/spack.lock build/3_more_tools/.spack-env build/3_more_tools/view build/3_more_tools/._view
 
-clean-4_more_tools:
-	rm -rf build/4_more_tools/install build/4_more_tools/spack.lock build/4_more_tools/.spack-env build/4_more_tools/view build/4_more_tools/._view
+clean-4_environment:
+	rm -rf build/4_environment/make_relative_env build/4_environment/prune build/4_environment/fix_file
 
 clean-5_runtime:
 	rm -rf build/5_runtime/install build/5_runtime/spack.lock build/5_runtime/.spack-env build/5_runtime/view build/5_runtime/._view
 
 clean-6_spack:
 	rm -rf build/6_spack/install build/6_spack/spack.lock build/6_spack/.spack-env build/6_spack/view build/6_spack/._view
+
+cleanall: clean-1_ccache clean-2_compiler clean-3_more_tools clean-4_environment clean-5_runtime clean-6_spack 

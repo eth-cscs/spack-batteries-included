@@ -1,7 +1,8 @@
 spack:
   specs:
   - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@:3 default_library=static
-  - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@2.9.9 default_library=static
+  - squashfuse@0.1.104-74f4fe8 ~lz4 ~lzo +min_size ~shared ~xz ~zlib ^libfuse@2.9.9
+    default_library=static
   concretization: separately
   view:
     fuse2:
@@ -43,8 +44,10 @@ spack:
         f77: null
         fc: null
       flags:
-        cflags: -static-libstdc++ -static-libgcc -s -fPIC -ffunction-sections -fdata-sections -Wl,--gc-sections
-        cxxflags: -static-libstdc++ -static-libgcc -s -fPIC -ffunction-sections -fdata-sections -Wl,--gc-sections
+        cflags: -static-libstdc++ -static-libgcc -s -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
+        cxxflags: -static-libstdc++ -static-libgcc -s -fPIC -ffunction-sections -fdata-sections
+          -Wl,--gc-sections
         ldflags: -Wl,--gc-sections
       operating_system: centos7
       modules: []

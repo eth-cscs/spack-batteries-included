@@ -30,7 +30,7 @@ spack:
       buildable: false
   'compilers:':
   - compiler:
-      spec: gcc@10.3.0
+      spec: gcc@9.3.0
       paths:
         cc: /build/2_compiler/view/bin/gcc
         cxx: /build/2_compiler/view/bin/g++

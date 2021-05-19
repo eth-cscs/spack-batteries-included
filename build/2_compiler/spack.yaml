@@ -1,6 +1,6 @@
 spack:
   specs:
-  - gcc@10.3.0 %gcc@:4 ~bootstrap +strip +binutils languages=c,c++,go
+  - gcc@9.3.0 %gcc@:4 ~bootstrap +strip +binutils languages=c,c++,go
   view: /build/2_compiler/view
   config:
     source_cache: /build/source_cache

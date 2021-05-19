@@ -9,9 +9,11 @@ spack:
   - file
   - git ~perl ~nls ~man
   - gmake ~nls
+  - gnupg@:1.4
   - gzip
   - patch
   - patchelf
+  - py-boto3
   - python ~dbm ~libxml2
   - squashfs +gzip +zstd +lz4 +lzo +xz default_compression=zstd
   - tar
@@ -40,6 +42,11 @@ spack:
       externals:
       - spec: cmake@3.20.1
         prefix: /usr/local
+      buildable: false
+    gawk:
+      externals:
+      - spec: gawk@4.0.2
+        prefix: /
       buildable: false
   config:
     ccache: true

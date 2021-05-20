@@ -9,16 +9,16 @@ SPACK_SHA=$(git ls-remote https://github.com/spack/spack.git | grep refs/heads/d
 echo "Using spack SHA $SPACK_SHA"
 
 # Download the latest stable spack.x release and the latest runtime.x
-export BASE_VERSION="v2.1.0"
+export BASE_VERSION="v2.2.0"
 echo "Downloading spack-$ARCH.x from version $BASE_VERSION"
 
 curl -LfSs -o "runtime-$ARCH-fuse2"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse2"
 curl -LfSs -o "runtime-$ARCH-fuse3"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse3"
 curl -LfSs -o "spack-$ARCH-old.x"    "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-$ARCH.x"
 
-echo "9034e1ca5d8ac9b9cefac2630fc8b0cca0a5e7db07303b94723b60438c9c5a41 runtime-$ARCH-fuse2"  | sha256sum --check
-echo "df16b30988b6aa95c8f6a8356dd5e593b74c7e831eed87395f58f20af9da8b41 runtime-$ARCH-fuse3"  | sha256sum --check
-echo "98371f48e51eb66ef1d45ec73baf5f7c7d66954ef1d49e4d7a6b70fb55cc8944 spack-$ARCH-old.x"    | sha256sum --check
+echo "aa269f3af2303925ec8752ed326200a91f65896a17ac80583bfe15d79c161470 runtime-$ARCH-fuse2"  | sha256sum --check
+echo "aa89a9add9d3a44351df31d29953081fdf9bf1d41a479721f655faaf52851932 runtime-$ARCH-fuse3"  | sha256sum --check
+echo "5fc2a934bd4baabd9881125e4ac64d4ec51d31167d54d223171c6ea34a3d309d spack-$ARCH-old.x"    | sha256sum --check
 
 chmod +x "spack-$ARCH-old.x"
 export PATH="$PWD:$PATH"
@@ -36,7 +36,6 @@ export PATH="$PWD:$PATH"
     curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_src
     echo "$SPACK_SHA" > spack_sha
 
-    # Apply the patch that allows you to drop specifying --log-file
     patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/patches/hack-wrapper.patch"
     cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" spack_src/etc/spack/
 

@@ -15,6 +15,8 @@ spack:
   - patchelf
   - py-boto3
   - python ~dbm ~libxml2
+  - rpm berkeley-db=none crypto=openssl ~gpg ~lua ~nls ~openmp ~posix ~python ~selinux
+    ~sqlite ~zstd
   - squashfs +gzip +zstd +lz4 +lzo +xz default_compression=zstd
   - tar
   - unzip
@@ -27,7 +29,7 @@ spack:
       target:
       - ${TARGET}
     gettext:
-      variants: ~bzip2 ~curses ~git +libxml2 ~tar ~xz ~openmp ~libasprintf
+      variants: ~bzip2 ~curses ~git ~libxml2 ~tar ~xz ~openmp ~libasprintf
     openssl:
       variants: ~systemcerts
     berkeley-db:

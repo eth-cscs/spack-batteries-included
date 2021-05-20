@@ -1,17 +1,8 @@
-From 60abe27d7ef5559a3d49b2e98e19cd243f06ff5b Mon Sep 17 00:00:00 2001
-From: Harmen Stoppels <harmenstoppels@gmail.com>
-Date: Wed, 19 May 2021 22:55:48 +0200
-Subject: [PATCH] GPG fixes
-
----
- .../repos/builtin/packages/gnupg/package.py   | 67 ++++++++++++++-----
- 1 file changed, 50 insertions(+), 17 deletions(-)
-
 diff --git a/var/spack/repos/builtin/packages/gnupg/package.py b/var/spack/repos/builtin/packages/gnupg/package.py
-index 51d30b7f97..7706c7558c 100644
+index 2a602d8eff..e34c1d1b57 100644
 --- a/var/spack/repos/builtin/packages/gnupg/package.py
 +++ b/var/spack/repos/builtin/packages/gnupg/package.py
-@@ -28,42 +28,75 @@ class Gnupg(AutotoolsPackage):
+@@ -28,47 +28,74 @@ class Gnupg(AutotoolsPackage):
      version('2.2.3',  sha256='cbd37105d139f7aa74f92b6f65d136658682094b0e308666b820ae4b984084b4')
      version('2.1.21', sha256='7aead8a8ba75b69866f583b6c747d91414d523bfdfbe9a8e0fe026b16ba427dd')
  
@@ -46,11 +37,12 @@ index 51d30b7f97..7706c7558c 100644
 +    # Getting some linking error.
 +    conflicts('%gcc@10:', when='@:1')
 +
-+    @run_after('install')
-+    def add_gpg2_symlink(self):
-+        if self.spec.satisfies("@2.0:2.999"):
-+            symlink('gpg', self.prefix.bin.gpg2)
-+
+     @run_after('install')
+     def add_gpg2_symlink(self):
+-        if self.spec.satisfies("@2.0:2.999"):
+-            symlink('gpg', self.prefix.bin.gpg2)
++        symlink('gpg', self.prefix.bin.gpg2)
+ 
      def configure_args(self):
          args = [
 +            '--disable-nls',
@@ -104,6 +96,3 @@ index 51d30b7f97..7706c7558c 100644
          if self.run_tests:
              args.append('--enable-all-tests')
  
--- 
-2.25.1
-

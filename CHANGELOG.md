@@ -1,3 +1,7 @@
+v2.2.1
+- Actually use symlink gpg2 -> gpg even on gnupg1 to make sure spack picks it
+  up.
+
 v2.2.0
 - Also ship gpg 1.4 and py-boto3 to make binary caches work.
 

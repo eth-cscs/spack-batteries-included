@@ -32,5 +32,6 @@ patch -p1 -d /opt/spack -i /build/patches/hack-wrapper.patch
 patch -p1 -d /opt/spack -i /build/patches/curl.patch
 patch -p1 -d /opt/spack -i /build/patches/gettext.patch
 patch -p1 -d /opt/spack -i /build/patches/gpg.patch
+patch -p1 -d /opt/spack -i /build/patches/rpm.patch
 patch -p1 -d /opt/spack -i /build/patches/squashfuse.patch
 patch -p1 -d /opt/spack -i /build/patches/tar.patch

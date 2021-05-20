@@ -9,7 +9,7 @@ SPACK_SHA=$(git ls-remote https://github.com/spack/spack.git | grep refs/heads/d
 echo "Using spack SHA $SPACK_SHA"
 
 # Download the latest stable spack.x release and the latest runtime.x
-export BASE_VERSION="v2.3.0"
+export BASE_VERSION="v2.3.1"
 echo "Downloading spack-$ARCH.x from version $BASE_VERSION"
 
 curl -LfSs -o "runtime-$ARCH-fuse2"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse2"
@@ -18,7 +18,7 @@ curl -LfSs -o "spack-$ARCH-old.x"    "https://github.com/haampie/spack-batteries
 
 echo "aa269f3af2303925ec8752ed326200a91f65896a17ac80583bfe15d79c161470 runtime-$ARCH-fuse2"  | sha256sum --check
 echo "aa89a9add9d3a44351df31d29953081fdf9bf1d41a479721f655faaf52851932 runtime-$ARCH-fuse3"  | sha256sum --check
-echo "789e6563dec35bd348a2b5b685feb116e7dde47d41a12bf98f15d868a7521b64 spack-$ARCH-old.x"    | sha256sum --check
+echo "c7fff39dd7bbdeb9b795a956dd7ca4a76aae37d106c8a04744b3bc6b7690aae1 spack-$ARCH-old.x"    | sha256sum --check
 
 chmod +x "spack-$ARCH-old.x"
 export PATH="$PWD:$PATH"

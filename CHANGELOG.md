@@ -1,3 +1,6 @@
+v2.3.0
+- Add `rpm` -- this may be removed if not useful.
+
 v2.2.1
 - Actually use symlink gpg2 -> gpg even on gnupg1 to make sure spack picks it
   up.

@@ -1,10 +1,9 @@
 v2.3.1
 - Set the `GIT_SSL_CAINFO` variable to use the Mozilla PEM certificate with git.
+- Fix file wrappers for rpm (links against magic, needs MAGIC)
 
 v2.3.0
 - Add `rpm` -- this may be removed if not useful.
-
-v2.2.1
 - Actually use symlink gpg2 -> gpg even on gnupg1 to make sure spack picks it
   up.
 

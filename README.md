@@ -38,9 +38,9 @@ installed already!
 
 ## How does it work?
 `spack.x` consists of a modified version of the AppImage runtime concatenated
-with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`, `file`,
-`git`, `gmake`, `gzip`, `openssl`, `patch`, `patchelf`, `python`, `tar`, `unzip`, `xz`,
-`zstd` and their dependencies.
+with a big squashfs file which includes `binutils`, `bzip2`, `clingo`, `curl`,
+`file`, `git`, `gmake`, `gpg`, `gzip`, `openssl`, `patch`, `patchelf`, `python`,
+`py-boto3`, `tar`, `unzip`, `xz`, `zstd` and their dependencies.
 
 When you run `spack.x [args]` it will use `fusermount` to
 mount this squashfs file in a temporary directory, and then execute the

@@ -1,3 +1,6 @@
+v2.2.0
+- Also ship gpg 1.4 and py-boto3 to make binary caches work.
+
 v2.1.0
 - spack.x now includes ca-certificates-mozilla's pem file, so that https should
   work out of the box without further configuration. If you want to use system

@@ -10,8 +10,8 @@ if [ -z ${SSL_CERT_DIR+x} ] && [ -z ${SSL_CERT_FILE+x} ]; then
     export SSL_CERT_FILE="$HERE/view/share/cacert.pem"
 fi
 
-if [ -z ${GIT_SSL_CAPATH+x} ] && [ -z ${GIT_SSL_CERT+x} ]; then
-    export GIT_SSL_CERT="$HERE/view/share/cacert.pem"
+if [ -z ${GIT_SSL_CAPATH+x} ] && [ -z ${GIT_SSL_CAINFO+x} ]; then
+    export GIT_SSL_CAINFO="$HERE/view/share/cacert.pem"
 fi
 
 # make our binaries and libs important
@@ -23,10 +23,9 @@ export GIT_EXEC_PATH="$HERE/view/libexec/git-core"
 export GIT_TEMPLATE_DIR="$HERE/view/share/git-core/templates/"
 export TERMINFO="$HERE/view/share/terminfo"
 
-# rpm has MANY macros to be configured, let's just make everything fail and let
-# the user configure every macro they need -- if that turns out incredibly
-# unhelpful then I'll likely remove rpm altogether from spack.x
-export RPM_CONFIGDIR="$HERE"
+# rpm has MANY macros to be configured, not sure what the odds are that
+# they will actually work with spack.x
+export RPM_CONFIGDIR="$HERE/view/lib/rpm"
 
 # By default run spack $@, but if NO_ENTRYPOINT=... run the command directly
 if [ -z ${NO_ENTRYPOINT+x} ]; then

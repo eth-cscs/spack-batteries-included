@@ -81,7 +81,7 @@ to ensure that log files are written to the `config:misc_cache` folder.
 
 **openssl**: By default spack.x uses `ca-certificates-mozilla` for downloading
 package sources over https. If you somehow need to use system certificates,
-set `SSL_CERT_DIR` and `GIT_SSL_CAPATH` or `SSL_CERT_FILE` and `GIT_SSL_CERT`.
+set `SSL_CERT_DIR` and `GIT_SSL_CAINFO` or `SSL_CERT_FILE` and `GIT_SSL_CERT`.
 
 ## Can I run spack.x inside a container?
 

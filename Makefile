@@ -52,7 +52,7 @@ rootfs-with-spack: rootfs
 		$$(readlink build/6_spack/view)/include \
 		$$(readlink build/6_spack/view)/share/gettext/archive.dir.tar.gz \
 		$$(readlink build/6_spack/view)/lib/python3.8/test
-	$(UNSHARE) fix_file /build/6_spack/$$(readlink build/6_spack/view)/bin/file
+	$(UNSHARE) fix_file /build/6_spack/$$(readlink build/6_spack/view)/bin
 	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ ._view/ 1> /dev/null || true'
 
 # Download the latest version of spack as a tarball from GitHub

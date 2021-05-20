@@ -1,3 +1,6 @@
+v2.3.1
+- Set the `GIT_SSL_CAINFO` variable to use the Mozilla PEM certificate with git.
+
 v2.3.0
 - Add `rpm` -- this may be removed if not useful.
 

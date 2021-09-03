@@ -8,11 +8,14 @@ spack:
     fuse2:
       root: /build/5_runtime/view/fuse2
       select: [squashfuse ^libfuse@2, libfuse@2, zstd, squashfs]
+      link_type: symlink
     fuse3:
       root: /build/5_runtime/view/fuse3
       select: [squashfuse ^libfuse@3, libfuse@3, zstd, squashfs]
+      link_type: symlink
   config:
     source_cache: /build/source_cache
+    concretizer: clingo
     ccache: true
     install_tree:
       root: ./install

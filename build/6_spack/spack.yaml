@@ -1,7 +1,7 @@
 spack:
   specs:
   - binutils ~gold ~ld ~nls ~gas ~plugins libs=shared
-  - bzip2 ~shared
+  - bzip2
   - ca-certificates-mozilla
   - ccache
   - clingo-bootstrap@spack
@@ -21,7 +21,7 @@ spack:
   - tar
   - unzip
   - xz libs=static
-  - zstd ~shared +programs +multithread
+  - zstd +programs
   concretization: together
   view: /build/6_spack/view
   packages:
@@ -52,6 +52,7 @@ spack:
       buildable: false
   config:
     ccache: true
+    concretizer: clingo
     source_cache: /build/source_cache
     install_tree:
       root: ./install

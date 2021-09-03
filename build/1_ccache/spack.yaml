@@ -1,6 +1,6 @@
 spack:
   specs:
-  - ccache @gcc:5
+  - ccache@:4.3 %gcc@:5
   view: /build/1_ccache/view
   config:
     source_cache: /build/source_cache

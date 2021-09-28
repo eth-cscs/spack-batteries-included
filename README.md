@@ -9,7 +9,7 @@ This repo offers a single, static executable for Spack:
 ```console
 $ wget -qO spack.x https://github.com/eth-cscs/spack-batteries-included/releases/download/develop/spack-x86_64.x
 $ chmod +x spack.x
-$ ./spack.x install zstd +programs ~shared build_type=Release
+$ ./spack.x install curl tls=mbedtls
 ```
 ## What version of Spack is shipped?
 

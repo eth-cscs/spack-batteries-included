@@ -1,4 +1,4 @@
-[![Update spack develop version](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml/badge.svg?branch=master)](https://github.com/haampie/spack-batteries-included/actions/workflows/update-spack.yaml)
+[![Update spack develop version](https://github.com/eth-cscs/spack-batteries-included/actions/workflows/update-spack.yaml/badge.svg?branch=master)](https://github.com/eth-cscs/spack-batteries-included/actions/workflows/update-spack.yaml)
 
 # 🔋 Spack with batteries included (linux/x86_64)
 
@@ -7,7 +7,7 @@
 This repo offers a single, static executable for Spack:
 
 ```console
-$ wget -qO spack.x https://github.com/haampie/spack-batteries-included/releases/download/develop/spack-x86_64.x
+$ wget -qO spack.x https://github.com/eth-cscs/spack-batteries-included/releases/download/develop/spack-x86_64.x
 $ chmod +x spack.x
 $ ./spack.x install zstd +programs ~shared build_type=Release
 ```

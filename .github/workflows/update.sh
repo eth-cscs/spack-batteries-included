@@ -12,9 +12,9 @@ echo "Using spack SHA $SPACK_SHA"
 export BASE_VERSION="v2.3.2"
 echo "Downloading spack-$ARCH.x from version $BASE_VERSION"
 
-curl -LfSs -o "runtime-$ARCH-fuse2"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse2"
-curl -LfSs -o "runtime-$ARCH-fuse3"  "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse3"
-curl -LfSs -o "spack-$ARCH-old.x"    "https://github.com/haampie/spack-batteries-included/releases/download/$BASE_VERSION/spack-$ARCH.x"
+curl -LfSs -o "runtime-$ARCH-fuse2"  "https://github.com/eth-cscs/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse2"
+curl -LfSs -o "runtime-$ARCH-fuse3"  "https://github.com/eth-cscs/spack-batteries-included/releases/download/$BASE_VERSION/runtime-$ARCH-fuse3"
+curl -LfSs -o "spack-$ARCH-old.x"    "https://github.com/eth-cscs/spack-batteries-included/releases/download/$BASE_VERSION/spack-$ARCH.x"
 
 echo "3f3be2781919f3ed47a4400f41227f01581e2f34d1beb2cf6988bbdae6514e8d runtime-$ARCH-fuse2"  | sha256sum --check
 echo "334d32b0fba99539e4112f420299a14ad938ba140eb8c4ef0c9fa7f53d180728 runtime-$ARCH-fuse3"  | sha256sum --check

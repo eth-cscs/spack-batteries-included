@@ -6,7 +6,7 @@ ARCH=${ARCH:-$(arch)}
 
 curl -fsS \
     -H "Accept: application/vnd.github.v3+json" \
-    https://api.github.com/repos/haampie/spack-batteries-included/releases > release_info.json
+    https://api.github.com/repos/eth-cscs/spack-batteries-included/releases > release_info.json
 
 # Get the release url
 release_id="$(< release_info.json jq -r '.[] | select(.tag_name=="develop") | .id')"
@@ -40,5 +40,5 @@ do
          -H "Authorization: Bearer $GITHUB_TOKEN" \
          -H "Content-Type: application/octet-stream" \
          --data-binary "@$name" \
-         "https://uploads.github.com/repos/haampie/spack-batteries-included/releases/$release_id/assets?name=$name)"
+         "https://uploads.github.com/repos/eth-cscs/spack-batteries-included/releases/$release_id/assets?name=$name)"
 done

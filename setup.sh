@@ -27,8 +27,6 @@ mkdir -p /opt/spack && curl -Ls "https://api.github.com/repos/spack/spack/tarbal
 # Install a relatively recent cmake
 curl -Ls "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-linux-$(arch).tar.gz" | tar --strip-components=1 -xz -C /usr/local
 
-patch -p1 -d /opt/spack -i /build/patches/hack-wrapper.patch
-
 patch -p1 -d /opt/spack -i /build/patches/curl.patch
 patch -p1 -d /opt/spack -i /build/patches/gettext.patch
 patch -p1 -d /opt/spack -i /build/patches/gpg.patch

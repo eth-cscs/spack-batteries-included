@@ -36,7 +36,6 @@ export PATH="$PWD:$PATH"
     curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_src
     echo "$SPACK_SHA" > spack_sha
 
-    patch -p1 -d spack_src -i "$GITHUB_WORKSPACE/build/patches/hack-wrapper.patch"
     cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" spack_src/etc/spack/
 
     find . '(' -iname '*.pyc' -o -iname '__pycache__' ')' -print0 | xargs --null rm -rf

@@ -60,7 +60,7 @@ bump_spack: 6_spack
 	$(UNSHARE) rm -rf /build/6_spack/spack_src
 	$(UNSHARE) mkdir /build/6_spack/spack_src
 	$(UNSHARE) bash -c 'curl -Ls "https://api.github.com/repos/spack/spack/tarball/develop" | tar --strip-components=1 -xz -C /build/6_spack/spack_src'
-	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/spack_src/etc/spack/
+	$(UNSHARE) cp /build/6_spack/config.yaml /build/6_spack/modules.yaml /build/6_spack/spack_src/etc/spack/
 	$(UNSHARE) bash -c 'cd /build/6_spack && find . -iname "__pycache__" | xargs rm -rf'
 	$(UNSHARE) bash -c 'cd /build/6_spack && ./spack python -m compileall spack_src/ install/ ._view/ 1> /dev/null || true'
 

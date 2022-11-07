@@ -36,7 +36,7 @@ export PATH="$PWD:$PATH"
     curl -LfSs "https://api.github.com/repos/spack/spack/tarball/$SPACK_SHA" | tar --strip-components=1 -xz -C spack_src
     echo "$SPACK_SHA" > spack_sha
 
-    cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" spack_src/etc/spack/
+    cp "$GITHUB_WORKSPACE/build/6_spack/config.yaml" "$GITHUB_WORKSPACE/build/6_spack/modules.yaml" spack_src/etc/spack/
 
     find . '(' -iname '*.pyc' -o -iname '__pycache__' ')' -print0 | xargs --null rm -rf
     NO_ENTRYPOINT='' "spack-$ARCH-old.x" python -m compileall -q spack_src/ install/ view/ ._view/ || true
